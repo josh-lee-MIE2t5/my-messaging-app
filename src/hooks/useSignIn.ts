@@ -2,16 +2,18 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { AuthContext } from "@/context/context";
 import { useContext } from "react";
 import authClient from "@/firebase/firebase";
-import { useRouter } from "next/router";
+import { FirebaseError } from "firebase/app";
+import { useErrorHandler } from "react-error-boundary";
+
 function useSignIn() {
   const authContext = useContext(AuthContext);
-  const router = useRouter();
+  const handleError = useErrorHandler();
   const signInUserEmail = async (email: string, password: string) => {
     try {
       const res = await signInWithEmailAndPassword(authClient, email, password);
       authContext?.setUser(res.user);
     } catch (error) {
-      console.log(error);
+      handleError(error);
     }
   };
 
