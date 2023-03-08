@@ -8,7 +8,7 @@ export interface UserContext {
   setUser: Function;
 }
 
-const AuthContext = createContext<UserContext | undefined>(undefined);
+export const AuthContext = createContext<UserContext | undefined>(undefined);
 
 interface Props {
   children: string | JSX.Element | JSX.Element[] | undefined;
