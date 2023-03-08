@@ -1,4 +1,3 @@
-import { Auth, signInWithEmailAndPassword } from "firebase/auth";
 import React, { ChangeEvent, useState } from "react";
 import useSignUp from "@/hooks/useSignUp";
 import useOnChange from "@/hooks/useOnChange";

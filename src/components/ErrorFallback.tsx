@@ -1,4 +1,3 @@
-import ReactFCProps from "@/types/ReactFCProps.types";
 import { useEffect } from "react";
 export default function ErrorFallback({
   error,

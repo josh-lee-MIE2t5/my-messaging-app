@@ -1,8 +1,11 @@
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from "firebase/auth";
 import { AuthContext } from "@/context/context";
 import { useContext } from "react";
 import authClient from "@/firebase/firebase";
-import { FirebaseError } from "firebase/app";
 import { useErrorHandler } from "react-error-boundary";
 
 function useSignIn() {
@@ -16,11 +19,19 @@ function useSignIn() {
       handleError(error);
     }
   };
-
   const signInWithGoogle = async () => {
-    //implement a sign in with google then add it to return object
+    const googleAuthProvider = new GoogleAuthProvider();
+    try {
+      const res = await signInWithPopup(authClient, googleAuthProvider);
+      const credential = GoogleAuthProvider.credentialFromResult(res);
+      const token = credential?.accessToken;
+      console.log("token: ", token);
+      authContext?.setUser(res.user);
+    } catch (e) {
+      handleError(e);
+    }
   };
-  return { signInUserEmail };
+  return { signInUserEmail, signInWithGoogle };
 }
 
 export default useSignIn;

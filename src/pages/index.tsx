@@ -18,7 +18,7 @@ export default function Home() {
     email: "",
     password: "",
   });
-  const { signInUserEmail } = useSignIn();
+  const { signInUserEmail, signInWithGoogle } = useSignIn();
   return (
     <>
       <Head>
@@ -34,7 +34,6 @@ export default function Home() {
           </>
         ) : (
           <form>
-            {" "}
             <input
               type="email"
               name="email"
@@ -58,6 +57,14 @@ export default function Home() {
               }}
             >
               sign in
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                signInWithGoogle();
+              }}
+            >
+              Sign in with google
             </button>
           </form>
         )}
