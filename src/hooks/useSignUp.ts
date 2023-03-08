@@ -15,8 +15,6 @@ function useSignUp() {
         password
       );
       if (!res) throw new Error("Sign up failed");
-
-      console.log(res);
       authContext?.setUser(res.user);
       router.push("/");
     } catch (error) {
