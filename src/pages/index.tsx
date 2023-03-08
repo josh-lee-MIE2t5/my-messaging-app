@@ -57,7 +57,7 @@ export default function Home() {
                 signInUserEmail(formDetails.email, formDetails.password);
               }}
             >
-              sign up
+              sign in
             </button>
           </form>
         )}

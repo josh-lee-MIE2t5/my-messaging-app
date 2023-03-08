@@ -2,7 +2,7 @@ import { createContext } from "react";
 import { User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import authClient from "@/firebase/firebase";
-
+import ReactFCProps from "@/types/ReactFCProps.types";
 export interface UserContext {
   user: User | null;
   setUser: Function;
@@ -10,11 +10,7 @@ export interface UserContext {
 
 export const AuthContext = createContext<UserContext | undefined>(undefined);
 
-interface Props {
-  children: string | JSX.Element | JSX.Element[] | undefined;
-}
-
-export function AuthProvider({ children }: Props) {
+export function AuthProvider({ children }: ReactFCProps) {
   const [user, setUser] = useState<User | null>(null);
   useEffect(() => {
     authClient.onAuthStateChanged(setUser);
