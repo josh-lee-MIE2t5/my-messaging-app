@@ -30,7 +30,6 @@ export default function Home() {
         {user?.user ? (
           <>
             <button onClick={signOut}>logout</button>
-            <p>signed in as {user?.user.email}</p>
           </>
         ) : (
           <form>
