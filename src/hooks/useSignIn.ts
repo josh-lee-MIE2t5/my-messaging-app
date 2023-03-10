@@ -5,8 +5,9 @@ import {
 } from "firebase/auth";
 import { AuthContext } from "@/context/context";
 import { useContext } from "react";
-import authClient from "@/firebase/firebase";
+import authClient, { db } from "@/firebase/firebase";
 import { useErrorHandler } from "react-error-boundary";
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 
 function useSignIn() {
   const authContext = useContext(AuthContext);
@@ -25,8 +26,17 @@ function useSignIn() {
       const res = await signInWithPopup(authClient, googleAuthProvider);
       const credential = GoogleAuthProvider.credentialFromResult(res);
       const token = credential?.accessToken;
-      console.log("token: ", token);
       authContext?.setUser(res.user);
+      const q = query(
+        collection(db, "users"),
+        where("uid", "==", res.user.uid)
+      );
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.size) {
+        const dbRef = collection(db, "users");
+        const data = { email: res.user.email, uid: res.user.uid };
+        await addDoc(dbRef, data);
+      }
     } catch (e) {
       handleError(e);
     }
