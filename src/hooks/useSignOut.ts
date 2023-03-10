@@ -3,10 +3,12 @@ import { signOut } from "firebase/auth";
 import { AuthContext } from "@/context/context";
 import { useContext } from "react";
 import { useRouter } from "next/router";
+import { useErrorHandler } from "react-error-boundary";
 
 function useSignOut() {
   const authContext = useContext(AuthContext);
   const router = useRouter();
+  const handleError = useErrorHandler();
   const signOutUser = async () => {
     try {
       const res = await signOut(authClient);
@@ -14,7 +16,7 @@ function useSignOut() {
       authContext?.setUser(null);
       router.push("/");
     } catch (error) {
-      console.log(error);
+      handleError(error);
     }
   };
   return signOutUser;

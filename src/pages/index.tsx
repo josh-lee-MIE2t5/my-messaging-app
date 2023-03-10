@@ -4,6 +4,7 @@ import { AuthContext } from "@/context/context";
 import useSignOut from "@/hooks/useSignOut";
 import useSignIn from "@/hooks/useSignIn";
 import useOnChange from "@/hooks/useOnChange";
+import SearchUserForm from "@/components/SearchUserForm";
 
 export default function Home() {
   const user = useContext(AuthContext);
@@ -30,6 +31,7 @@ export default function Home() {
         {user?.user ? (
           <>
             <button onClick={signOut}>logout</button>
+            <SearchUserForm />
           </>
         ) : (
           <form>
