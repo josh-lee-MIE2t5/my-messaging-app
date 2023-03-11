@@ -20,6 +20,6 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const authClient = getAuth(app);
-
+//initialize firestore db
 export const db = getFirestore(app);
 export default authClient;
