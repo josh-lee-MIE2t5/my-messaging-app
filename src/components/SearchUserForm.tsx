@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState } from "react";
-import { User } from "firebase/auth";
 import { ChangeEvent } from "react";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
-import { AuthContext } from "@/context/context";
+import { AuthContext } from "@/context/AuthContext";
+import { FriendRequestContext } from "@/context/FriendRequestContext";
 
 interface firestoreUser {
   email: string;
@@ -13,7 +13,10 @@ interface firestoreUser {
 function SearchUserForm() {
   const [users, setUsers] = useState<firestoreUser[]>([]);
   const [search, setSearch] = useState<string>("");
+
   const authContext = useContext(AuthContext);
+  const friendRequestContext = useContext(FriendRequestContext);
+
   function onChange(e: ChangeEvent<HTMLInputElement>) {
     setSearch(e.currentTarget.value);
   }
@@ -50,9 +53,20 @@ function SearchUserForm() {
         />
       </form>
       <div>
+        <h1>users</h1>
         <ul>
           {users.map((u) => (
-            <li key={u.uid}>{u.email}</li>
+            <li key={u.uid}>
+              {u.email}
+              <button
+                onClick={() => {
+                  friendRequestContext?.makeFriendReq(u.uid);
+                  friendRequestContext?.fetchSentReqs();
+                }}
+              >
+                add friend
+              </button>
+            </li>
           ))}
         </ul>
       </div>
