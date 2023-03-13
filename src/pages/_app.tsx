@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
-import { AuthProvider } from "@/context/context";
+import { AuthProvider } from "@/context/AuthContext";
 import { ErrorBoundary, withErrorBoundary } from "react-error-boundary";
 import Error from "@/components/ErrorFallback";
 

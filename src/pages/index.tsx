@@ -1,10 +1,12 @@
 import Head from "next/head";
 import { useContext, useState } from "react";
-import { AuthContext } from "@/context/context";
+import { AuthContext } from "@/context/AuthContext";
 import useSignOut from "@/hooks/useSignOut";
 import useSignIn from "@/hooks/useSignIn";
 import useOnChange from "@/hooks/useOnChange";
 import SearchUserForm from "@/components/SearchUserForm";
+import PendingRequests from "@/components/PendingRequests";
+import FriendRequestProvider from "@/context/FriendRequestContext";
 
 export default function Home() {
   const user = useContext(AuthContext);
@@ -31,7 +33,10 @@ export default function Home() {
         {user?.user ? (
           <>
             <button onClick={signOut}>logout</button>
-            <SearchUserForm />
+            <FriendRequestProvider>
+              <SearchUserForm />
+              <PendingRequests />
+            </FriendRequestProvider>
           </>
         ) : (
           <form>

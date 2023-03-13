@@ -1,6 +1,6 @@
 import authClient from "@/firebase/firebase";
 import { signOut } from "firebase/auth";
-import { AuthContext } from "@/context/context";
+import { AuthContext } from "@/context/AuthContext";
 import { useContext } from "react";
 import { useRouter } from "next/router";
 import { useErrorHandler } from "react-error-boundary";

@@ -3,7 +3,7 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
 } from "firebase/auth";
-import { AuthContext } from "@/context/context";
+import { AuthContext } from "@/context/AuthContext";
 import { useContext } from "react";
 import authClient, { db } from "@/firebase/firebase";
 import { useErrorHandler } from "react-error-boundary";

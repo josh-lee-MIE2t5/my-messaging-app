@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { AuthContext } from "@/context/context";
+import { AuthContext } from "@/context/AuthContext";
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import nookies from "nookies";
 
