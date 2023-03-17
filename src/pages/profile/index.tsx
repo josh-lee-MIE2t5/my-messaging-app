@@ -27,9 +27,7 @@ function Profile({
   });
   console.log("from props: ", token);
   return (
-    <div>
-      you are looking at the dashboard for user {authContext?.user?.email}
-    </div>
+    <div>you are looking at the info for user {authContext?.user?.email}</div>
   );
 }
 
