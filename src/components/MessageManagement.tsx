@@ -1,17 +1,9 @@
-import { useState, useContext, useEffect } from "react";
-import { db } from "@/firebase/firebase";
-import { getDocs, collection, where } from "firebase/firestore";
-import useEmailSearch from "@/hooks/useEmailSearchForUsers";
-import Friendship from "@/types/Friendship.types";
-import FirestoreUser from "@/types/FirestoreUser.types";
+import useFriendsList from "@/hooks/useFriendsList";
+import { useState } from "react";
 
 function MessageManagement() {
   const [friendListHidden, setFriendListhidden] = useState(true);
-  const [search, setSearch] = useState<string>("");
-  const [friendships, setFriendships] = useState<Friendship[]>([]);
-  const [friendsList, setFirendsList] = useState<FirestoreUser[]>([]);
-
-  useEffect(() => {}, []);
+  const { onChange, search, friendsDisplay } = useFriendsList();
 
   return (
     <div>
@@ -24,10 +16,15 @@ function MessageManagement() {
           onBlur={() => {
             setFriendListhidden(true);
           }}
-          onChange={(e) => {}}
+          onChange={onChange}
+          value={search}
         />
         <div hidden={friendListHidden}>
-          <ul></ul>
+          <ul>
+            {friendsDisplay.map((u) => (
+              <li key={u.uid}>{u.email}</li>
+            ))}
+          </ul>
         </div>
       </form>
     </div>
