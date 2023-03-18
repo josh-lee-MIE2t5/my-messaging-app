@@ -1,10 +1,19 @@
 import useFriendsList from "@/hooks/useFriendsList";
 import { useState } from "react";
-
+import Link from "next/link";
+import useChatRooms from "@/hooks/useChatRooms";
 function MessageManagement() {
   const [friendListHidden, setFriendListhidden] = useState(true);
   const { onChange, search, friendsDisplay } = useFriendsList();
-
+  const {
+    onNameChange,
+    chatRoomForm,
+    addParticipant,
+    removeParticipantInForm,
+    makeNewChatRoom,
+    myChatRooms,
+  } = useChatRooms();
+  //change to have it where user presses a button and it displays a form to make a new chat room
   return (
     <div>
       <form>
@@ -13,20 +22,72 @@ function MessageManagement() {
           onSelect={() => {
             setFriendListhidden(false);
           }}
-          onBlur={() => {
-            setFriendListhidden(true);
-          }}
           onChange={onChange}
           value={search}
         />
-        <div hidden={friendListHidden}>
-          <ul>
-            {friendsDisplay.map((u) => (
-              <li key={u.uid}>{u.email}</li>
-            ))}
-          </ul>
-        </div>
       </form>
+      <div hidden={friendListHidden}>
+        <ul>
+          {friendsDisplay.map((u) => (
+            <li key={u.user.uid}>
+              <Link href={`/profile/${u.friendshipId}`}>{u.user.email}</Link>
+              <button
+                onClick={() => {
+                  if (u.user.uid) addParticipant(u.user.uid);
+                }}
+              >
+                add to Chat Room
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h1>new Chat Room</h1>
+        <ul>
+          <h3>participants</h3>
+          <input
+            type="text"
+            placeholder="name"
+            value={chatRoomForm.name}
+            onChange={onNameChange}
+          />
+          {chatRoomForm.participants.map((p) => (
+            <li key={p.uid}>
+              {p.email}
+              {p.uid !== chatRoomForm.admin.uid && (
+                <button
+                  onClick={() => {
+                    if (p.uid) removeParticipantInForm(p.uid);
+                  }}
+                >
+                  Remove
+                </button>
+              )}
+            </li>
+          ))}
+          {/* add listener for chat rooms */}
+          {chatRoomForm.participants.length > 1 &&
+            chatRoomForm.name.length > 0 && (
+              <button
+                onClick={() => {
+                  makeNewChatRoom();
+                }}
+              >
+                Make New Chat Room
+              </button>
+            )}
+        </ul>
+      </div>
+      <div>
+        <h1>ChatRooms</h1>
+        <ul>map chat Rooms here</ul>
+        {myChatRooms.map((c) => (
+          <li key={c.id}>
+            <Link href={`/messages/${c.id}`}>{c.name}</Link>
+          </li>
+        ))}
+      </div>
     </div>
   );
 }
