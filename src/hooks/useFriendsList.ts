@@ -6,11 +6,15 @@ import FirestoreUser from "@/types/FirestoreUser.types";
 import { AuthContext } from "@/context/AuthContext";
 
 function useFriendsList() {
+  type FriendsListType = {
+    user: FirestoreUser;
+    friendshipId: string | undefined;
+  };
   const authContext = useContext(AuthContext);
   const [search, setSearch] = useState<string>("");
   const [friendships, setFriendships] = useState<Friendship[]>([]);
-  const [friendsList, setFriendsList] = useState<FirestoreUser[]>([]);
-  const [friendsDisplay, setFriendsDisplay] = useState<FirestoreUser[]>([]);
+  const [friendsList, setFriendsList] = useState<FriendsListType[]>([]);
+  const [friendsDisplay, setFriendsDisplay] = useState<FriendsListType[]>([]);
 
   const friendshipsRef = collection(db, "friendships");
   const userRef = collection(db, "users");
@@ -54,20 +58,25 @@ function useFriendsList() {
       console.log("fetching friend users");
       const q = query(userRef, where("uid", "in", friendsIds));
       const querySnapShot = await getDocs(q);
-      const tempUserArr: FirestoreUser[] = [];
+      const tempUserArr: FriendsListType[] = [];
       querySnapShot.forEach((u) => {
-        tempUserArr.push({ email: u.data().email, uid: u.data().uid });
+        tempUserArr.push({
+          user: { email: u.data().email, uid: u.data().uid },
+          friendshipId: friendships.find((f) =>
+            f.participants.includes(u.data().uid)
+          )?.id,
+        });
       });
       setFriendsList(tempUserArr);
     }
   }
 
   function filterFriends() {
-    const filteredFriends: FirestoreUser[] = [];
+    const filteredFriends: FriendsListType[] = [];
     const pattern: RegExp = new RegExp(`^${search}`, "i");
     if (search.length >= 3) {
       friendsList.forEach((f) => {
-        if (pattern.test(f.email)) filteredFriends.push(f);
+        if (f.user.email && pattern.test(f.user.email)) filteredFriends.push(f);
       });
     }
     setFriendsDisplay(filteredFriends);

@@ -1,5 +1,10 @@
+import FirestoreUser from "./FirestoreUser.types";
+
 export default interface Message {
-  friendshipId: string;
+  chatRoomId: string;
   date: Date;
-  id: string;
+  from: FirestoreUser;
+  to: FirestoreUser[];
+  text: string;
+  read: boolean;
 }
