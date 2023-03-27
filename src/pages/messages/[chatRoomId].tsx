@@ -1,16 +1,16 @@
 import { AuthContext } from "@/context/AuthContext";
 import { db } from "@/firebase/firebase";
-import FirestoreUser from "@/types/FirestoreUser.types";
 import Message from "@/types/Message.types";
 import {
   addDoc,
   collection,
   doc,
   getDoc,
-  getDocs,
+  limit,
   onSnapshot,
   orderBy,
   query,
+  QuerySnapshot,
   where,
 } from "firebase/firestore";
 import { useRouter } from "next/router";
@@ -19,7 +19,6 @@ import { ChangeEvent, useContext, useEffect, useState } from "react";
 function DirectMessagePage() {
   const authContext = useContext(AuthContext);
   const router = useRouter();
-
   const { chatRoomId } = router.query;
   const [message, setMessage] = useState<Message>({
     from: { email: authContext?.user?.email, uid: authContext?.user?.uid },
@@ -27,8 +26,10 @@ function DirectMessagePage() {
     date: new Date(),
     text: "",
     chatRoomId: "",
-    read: false,
+    readBy: [],
   });
+
+  const [snapShot, setSnapshot] = useState<QuerySnapshot | null>(null);
 
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -37,15 +38,60 @@ function DirectMessagePage() {
   useEffect(() => {
     if (chatRoomId && authContext?.user) {
       getChatRoomDetails();
-      //getMessages();
     }
   }, [chatRoomId, authContext]);
 
   useEffect(() => {
     if (chatRoomId) {
-      return messageListener();
+      messageListener();
     }
   }, [chatRoomId]);
+
+  useEffect(() => {
+    if (messages.length) {
+      snapShot?.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          setMessages((prevState) => {
+            return [
+              ...prevState,
+              {
+                chatRoomId: change.doc.data().chatRoomId,
+                date: change.doc.data().date,
+                from: change.doc.data().from,
+                to: change.doc.data().to,
+                text: change.doc.data().text,
+                readBy: change.doc.data().readBy,
+              },
+            ];
+          });
+        }
+        if (change.type === "modified") {
+          console.log("message Modified");
+        }
+      });
+    } else {
+      snapShot?.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          setMessages((prevState) => {
+            return [
+              {
+                chatRoomId: change.doc.data().chatRoomId,
+                date: change.doc.data().date,
+                from: change.doc.data().from,
+                to: change.doc.data().to,
+                text: change.doc.data().text,
+                readBy: change.doc.data().readBy,
+              },
+              ...prevState,
+            ];
+          });
+        }
+        if (change.type === "modified") {
+          console.log("message Modified");
+        }
+      });
+    }
+  }, [snapShot]);
 
   function onMessageChange(e: ChangeEvent<HTMLInputElement>) {
     setMessage((prevState) => ({
@@ -81,59 +127,27 @@ function DirectMessagePage() {
   }
 
   function messageListener() {
-    const q = query(
-      messagesCollectionRef,
-      where("chatRoomId", "==", chatRoomId),
-      orderBy("date")
+    const unsubscribe = onSnapshot(
+      query(
+        messagesCollectionRef,
+        where("chatRoomId", "==", chatRoomId),
+        orderBy("date", "desc"),
+        limit(15)
+      ),
+      (querySnapshot) => {
+        setSnapshot(querySnapshot);
+      }
     );
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      console.log("messages fetched");
-      const temp: Message[] = [];
-      querySnapshot.docChanges().forEach((change) => {
-        if (change.type === "added") {
-          change.doc.data();
-          setMessages((prevState) => [
-            ...prevState,
-            {
-              chatRoomId: change.doc.data().chatRoomId,
-              date: change.doc.data().date,
-              from: change.doc.data().from,
-              to: change.doc.data().to,
-              text: change.doc.data().text,
-              read: change.doc.data().read,
-            },
-          ]);
-        }
-      });
-    });
     return () => {
       unsubscribe();
     };
   }
 
-  async function getMessages() {
-    const conditional = where("chatRoomId", "==", chatRoomId);
-    const q = query(messagesCollectionRef, conditional, orderBy("date"));
-    const messagesSnapshot = await getDocs(q);
-    const temp: Message[] = [];
-    messagesSnapshot.forEach((m) => {
-      temp.push({
-        chatRoomId: m.data().chatRoomId,
-        date: m.data().date,
-        from: m.data().from,
-        to: m.data().to,
-        text: m.data().text,
-        read: m.data().read,
-      });
-    });
-    setMessages(temp);
-  }
-
   return (
     <div>
       <ul>
-        {messages.map((m) => (
-          <li>
+        {messages.map((m, i) => (
+          <li key={i}>
             {m.from.email} said {m.text}
           </li>
         ))}
@@ -147,6 +161,7 @@ function DirectMessagePage() {
       >
         Send
       </button>
+      <button>More</button>
     </div>
   );
 }

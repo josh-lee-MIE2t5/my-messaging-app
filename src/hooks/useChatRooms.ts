@@ -55,8 +55,16 @@ function useChatRooms() {
   }
 
   async function makeNewChatRoom() {
-    //add logic to see if chat room with all participants already exists before creating
-    await addDoc(chatRoomRef, chatRoomForm);
+    if (
+      !myChatRooms.some(
+        (c) =>
+          c.participants.length === chatRoomForm.participants.length &&
+          c.participants.every((p) =>
+            chatRoomForm.participants.some((cfp) => cfp.uid === p.uid)
+          )
+      )
+    )
+      await addDoc(chatRoomRef, chatRoomForm);
   }
 
   async function fetchChatRooms() {

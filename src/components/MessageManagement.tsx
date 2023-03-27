@@ -68,7 +68,7 @@ function MessageManagement() {
           ))}
           {/* add listener for chat rooms */}
           {chatRoomForm.participants.length > 1 &&
-            chatRoomForm.name.length > 0 && (
+            chatRoomForm.name?.length > 0 && (
               <button
                 onClick={() => {
                   makeNewChatRoom();

@@ -1,15 +1,9 @@
-import useFriendRequest from "@/hooks/useFriendRequests";
 import { useEffect } from "react";
 import { useContext } from "react";
 import { FriendRequestContext } from "@/context/FriendRequestContext";
 
 function PendingRequests() {
   const friendRequestContext = useContext(FriendRequestContext);
-
-  useEffect(() => {
-    friendRequestContext?.fetchRecievedReqs();
-    friendRequestContext?.fetchSentReqs();
-  }, []);
 
   return (
     <div
@@ -24,7 +18,7 @@ function PendingRequests() {
         <ul>
           {friendRequestContext?.recievedFriendRequests.map((r) => (
             <li key={r.id}>
-              {r.id}{" "}
+              {r.id}
               <button
                 onClick={() => {
                   friendRequestContext.acceptRequest(r.id);
