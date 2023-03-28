@@ -12,6 +12,8 @@ function MessageManagement() {
     removeParticipantInForm,
     makeNewChatRoom,
     myChatRooms,
+    onOpen,
+    fetchOlderChatrooms,
   } = useChatRooms();
   //change to have it where user presses a button and it displays a form to make a new chat room
   return (
@@ -66,27 +68,41 @@ function MessageManagement() {
               )}
             </li>
           ))}
-          {/* add listener for chat rooms */}
-          {chatRoomForm.participants.length > 1 &&
-            chatRoomForm.name?.length > 0 && (
-              <button
-                onClick={() => {
-                  makeNewChatRoom();
-                }}
-              >
-                Make New Chat Room
-              </button>
-            )}
+          {chatRoomForm.participants.length > 1 && (
+            <button
+              onClick={() => {
+                makeNewChatRoom();
+              }}
+            >
+              Make New Chat Room
+            </button>
+          )}
         </ul>
       </div>
       <div>
         <h1>ChatRooms</h1>
-        <ul>map chat Rooms here</ul>
-        {myChatRooms.map((c) => (
-          <li key={c.id}>
-            <Link href={`/messages/${c.id}`}>{c.name}</Link>
-          </li>
-        ))}
+        <ul>
+          map chat Rooms here
+          {myChatRooms.map((c) => (
+            <li key={c.id}>
+              <Link
+                href={`/messages/${c.id}`}
+                onClick={() => {
+                  onOpen(c.id);
+                }}
+              >
+                {c.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <button
+          onClick={() => {
+            fetchOlderChatrooms();
+          }}
+        >
+          More
+        </button>
       </div>
     </div>
   );
