@@ -1,5 +1,6 @@
 import { AuthContext } from "@/context/AuthContext";
 import { db } from "@/firebase/firebase";
+import useChatRooms from "@/hooks/useChatRooms";
 import Message from "@/types/Message.types";
 import {
   addDoc,
@@ -33,6 +34,8 @@ function DirectMessagePage() {
     readBy: [],
   });
 
+  const { isParticpant } = useChatRooms();
+
   const [startAfterDoc, setStartAfterDoc] = useState<
     QueryDocumentSnapshot | undefined
   >(undefined);
@@ -44,8 +47,16 @@ function DirectMessagePage() {
   const messagesCollectionRef = collection(db, "messages");
 
   useEffect(() => {
-    if (chatRoomId && authContext?.user) {
-      getChatRoomDetails();
+    if (chatRoomId && authContext?.user && typeof chatRoomId === "string") {
+      //confirm user is a participant of the group to be able to enter the chatRoom
+      //if the user is no longer a participant redirect user
+      const isParticipantPromise = isParticpant(
+        authContext.user.uid,
+        chatRoomId
+      );
+      isParticipantPromise.then((p) => {
+        p ? getChatRoomDetails() : router.push("/"); //this is only client side guarding look into other options
+      });
     }
   }, [chatRoomId, authContext]);
 

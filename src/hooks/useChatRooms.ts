@@ -16,15 +16,20 @@ import {
   QuerySnapshot,
   QueryDocumentSnapshot,
   startAfter,
+  getDoc,
+  DocumentSnapshot,
+  DocumentData,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { isEqual } from "lodash";
+import { useErrorHandler } from "react-error-boundary";
 
 function useChatRooms() {
   interface ChatRoomListType extends ChatRoom {
     id: string;
   }
 
+  const handleError = useErrorHandler();
   const chatRoomRef = collection(db, "chatRoom");
   const authContext = useContext(AuthContext);
 
@@ -119,6 +124,7 @@ function useChatRooms() {
   }, [snapShot]);
 
   async function addParticipant(uid: string) {
+    //NOTE check if user is already in the form participants and when the size of the participants array changes to greater than 2 people make it into a groupchat type
     const q = query(collection(db, "users"), where("uid", "==", uid));
     const userSnapshot = await getDocs(q);
     if (userSnapshot.size === 1)
@@ -132,6 +138,10 @@ function useChatRooms() {
               uid: u.data().uid,
             },
           ],
+        }));
+        setChatRoomForm((prevState) => ({
+          ...prevState,
+          type: prevState.participants.length > 2 ? "groupchat" : "directMsg",
         }));
       });
   }
@@ -198,19 +208,39 @@ function useChatRooms() {
       ...prevState,
       participants: prevState.participants.filter((p) => p.uid !== uid),
     }));
+    setChatRoomForm((prevState) => ({
+      ...prevState,
+      type: prevState.participants.length > 2 ? "groupchat" : "directMsg",
+    }));
   }
 
   async function makeNewChatRoom() {
-    if (
-      !myChatRooms.some(
-        (c) =>
-          c.participants.length === chatRoomForm.participants.length &&
-          c.participants.every((p) =>
+    const q = query(
+      chatRoomRef,
+      where("participants", "array-contains-any", chatRoomForm.participants),
+      where("type", "==", chatRoomForm.type)
+    );
+    const chatroomSnapshot = await getDocs(q);
+    console.log(chatroomSnapshot.docs[0]);
+
+    chatroomSnapshot.docs.some(
+      (c) =>
+        c.data().participants.length === chatRoomForm.participants.length &&
+        c
+          .data()
+          .participants.every((p: { uid: string }) =>
             chatRoomForm.participants.some((cfp) => cfp.uid === p.uid)
-          )
-      )
+          ) &&
+        c.data().type === chatRoomForm.type
     )
-      await addDoc(chatRoomRef, chatRoomForm);
+      ? console.log("chatroom already exists")
+      : await addDoc(chatRoomRef, chatRoomForm);
+  }
+
+  async function findChatRoom() {
+    //find chatrooms and friendships
+    // search should prioritize chatroom name, then participants and then friendships
+    // return friendships that match the same search string but only if they are not in any of the chatrooms of typedirectmessage
   }
 
   function onNameChange(e: ChangeEvent<HTMLInputElement>) {
@@ -219,6 +249,7 @@ function useChatRooms() {
       name: e.target.value,
     }));
   }
+
   async function onOpen(chatroomId: string) {
     await updateDoc(doc(db, "chatRoom", chatroomId), {
       readBy: arrayUnion({
@@ -227,7 +258,28 @@ function useChatRooms() {
       }),
     });
   }
+
+  function isParticpant(
+    userID: string,
+    chatRoomId: string
+  ): Promise<DocumentSnapshot<DocumentData>> {
+    const ref = doc(db, "chatRoom", chatRoomId);
+    let out = getDoc(ref)
+      .then(
+        (chatroom) =>
+          chatroom.exists() &&
+          chatroom
+            .get("participants")
+            .some((p: { uid: string }) => p.uid === userID)
+      )
+      .catch((e) => {
+        handleError(e);
+      });
+    return out;
+  }
+
   return {
+    isParticpant,
     onNameChange,
     chatRoomForm,
     addParticipant,
