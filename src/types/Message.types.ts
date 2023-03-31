@@ -6,5 +6,5 @@ export default interface Message {
   from: FirestoreUser;
   to: FirestoreUser[];
   text: string;
-  read: boolean;
+  readBy: FirestoreUser[];
 }

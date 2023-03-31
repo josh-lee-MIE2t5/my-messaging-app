@@ -1,6 +1,6 @@
 import { AuthContext } from "@/context/AuthContext";
 import { db } from "@/firebase/firebase";
-import FirestoreUser from "@/types/FirestoreUser.types";
+import useChatRooms from "@/hooks/useChatRooms";
 import Message from "@/types/Message.types";
 import {
   addDoc,
@@ -8,9 +8,14 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
   onSnapshot,
   orderBy,
   query,
+  QueryDocumentSnapshot,
+  QuerySnapshot,
+  startAfter,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import { useRouter } from "next/router";
@@ -19,7 +24,6 @@ import { ChangeEvent, useContext, useEffect, useState } from "react";
 function DirectMessagePage() {
   const authContext = useContext(AuthContext);
   const router = useRouter();
-
   const { chatRoomId } = router.query;
   const [message, setMessage] = useState<Message>({
     from: { email: authContext?.user?.email, uid: authContext?.user?.uid },
@@ -27,25 +31,108 @@ function DirectMessagePage() {
     date: new Date(),
     text: "",
     chatRoomId: "",
-    read: false,
+    readBy: [],
   });
+
+  const { isParticpant } = useChatRooms();
+
+  const [startAfterDoc, setStartAfterDoc] = useState<
+    QueryDocumentSnapshot | undefined
+  >(undefined);
+
+  const [snapShot, setSnapshot] = useState<QuerySnapshot | null>(null);
 
   const [messages, setMessages] = useState<Message[]>([]);
 
   const messagesCollectionRef = collection(db, "messages");
 
   useEffect(() => {
-    if (chatRoomId && authContext?.user) {
-      getChatRoomDetails();
-      //getMessages();
+    if (chatRoomId && authContext?.user && typeof chatRoomId === "string") {
+      //confirm user is a participant of the group to be able to enter the chatRoom
+      //if the user is no longer a participant redirect user
+      const isParticipantPromise = isParticpant(
+        authContext.user.uid,
+        chatRoomId
+      );
+      isParticipantPromise.then((p) => {
+        p ? getChatRoomDetails() : router.push("/"); //this is only client side guarding look into other options
+      });
     }
   }, [chatRoomId, authContext]);
 
   useEffect(() => {
     if (chatRoomId) {
-      return messageListener();
+      messageListener();
     }
   }, [chatRoomId]);
+
+  useEffect(() => {
+    snapShot?.docChanges().forEach((change) => {
+      if (change.type === "added") {
+        //call onOpen hook
+        setMessages((prevState) => {
+          return messages.length
+            ? [
+                ...prevState,
+                {
+                  chatRoomId: change.doc.data().chatRoomId,
+                  date: change.doc.data().date,
+                  from: change.doc.data().from,
+                  to: change.doc.data().to,
+                  text: change.doc.data().text,
+                  readBy: change.doc.data().readBy,
+                },
+              ]
+            : [
+                {
+                  chatRoomId: change.doc.data().chatRoomId,
+                  date: change.doc.data().date,
+                  from: change.doc.data().from,
+                  to: change.doc.data().to,
+                  text: change.doc.data().text,
+                  readBy: change.doc.data().readBy,
+                },
+                ...prevState,
+              ];
+        });
+      }
+    });
+    if (!messages.length)
+      setStartAfterDoc(snapShot?.docs[snapShot.docs.length - 1]);
+  }, [snapShot]);
+
+  async function getOlderMsgs() {
+    //implement state for loading for a loading css animation
+    if (startAfterDoc) {
+      console.log("fetching older msgs");
+      const q = query(
+        messagesCollectionRef,
+        where("chatRoomId", "==", chatRoomId),
+        orderBy("date", "desc"),
+        limit(15),
+        startAfter(startAfterDoc)
+      );
+      const nextBatchSnapshot = await getDocs(q);
+      nextBatchSnapshot.forEach((m) => {
+        if (m.exists()) {
+          setMessages((prevState) => [
+            {
+              chatRoomId: m.data().chatRoomId,
+              date: m.data().date,
+              from: m.data().from,
+              to: m.data().to,
+              text: m.data().text,
+              readBy: m.data().readBy,
+            },
+            ...prevState,
+          ]);
+        }
+      });
+      setStartAfterDoc(
+        nextBatchSnapshot.docs[nextBatchSnapshot.docs.length - 1]
+      );
+    }
+  }
 
   function onMessageChange(e: ChangeEvent<HTMLInputElement>) {
     setMessage((prevState) => ({
@@ -75,65 +162,41 @@ function DirectMessagePage() {
     }
   }
 
-  async function SendMessage() {
+  async function SendMessage(roomId: string) {
     setMessage((prevState) => ({ ...prevState, date: new Date() }));
     await addDoc(messagesCollectionRef, message);
+    if (chatRoomId)
+      await updateDoc(doc(db, "chatRoom", roomId), {
+        dateLastSent: message.date,
+        mostRecentMsg: message,
+        readBy: [
+          { email: authContext?.user?.email, uid: authContext?.user?.uid },
+        ],
+      });
   }
 
   function messageListener() {
-    const q = query(
-      messagesCollectionRef,
-      where("chatRoomId", "==", chatRoomId),
-      orderBy("date")
+    const unsubscribe = onSnapshot(
+      query(
+        messagesCollectionRef,
+        where("chatRoomId", "==", chatRoomId),
+        orderBy("date", "desc"),
+        limit(15)
+      ),
+      (querySnapshot) => {
+        setSnapshot(querySnapshot);
+      }
     );
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      console.log("messages fetched");
-      const temp: Message[] = [];
-      querySnapshot.docChanges().forEach((change) => {
-        if (change.type === "added") {
-          change.doc.data();
-          setMessages((prevState) => [
-            ...prevState,
-            {
-              chatRoomId: change.doc.data().chatRoomId,
-              date: change.doc.data().date,
-              from: change.doc.data().from,
-              to: change.doc.data().to,
-              text: change.doc.data().text,
-              read: change.doc.data().read,
-            },
-          ]);
-        }
-      });
-    });
     return () => {
       unsubscribe();
     };
   }
 
-  async function getMessages() {
-    const conditional = where("chatRoomId", "==", chatRoomId);
-    const q = query(messagesCollectionRef, conditional, orderBy("date"));
-    const messagesSnapshot = await getDocs(q);
-    const temp: Message[] = [];
-    messagesSnapshot.forEach((m) => {
-      temp.push({
-        chatRoomId: m.data().chatRoomId,
-        date: m.data().date,
-        from: m.data().from,
-        to: m.data().to,
-        text: m.data().text,
-        read: m.data().read,
-      });
-    });
-    setMessages(temp);
-  }
-
   return (
     <div>
       <ul>
-        {messages.map((m) => (
-          <li>
+        {messages.map((m, i) => (
+          <li key={i}>
             {m.from.email} said {m.text}
           </li>
         ))}
@@ -141,11 +204,18 @@ function DirectMessagePage() {
       <input type="text" onChange={onMessageChange} value={message.text} />
       <button
         onClick={(e) => {
-          SendMessage();
+          if (typeof chatRoomId === "string") SendMessage(chatRoomId);
           setMessage((prevState) => ({ ...prevState, text: "" }));
         }}
       >
         Send
+      </button>
+      <button
+        onClick={() => {
+          getOlderMsgs();
+        }}
+      >
+        More
       </button>
     </div>
   );

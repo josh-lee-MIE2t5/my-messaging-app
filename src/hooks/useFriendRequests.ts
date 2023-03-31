@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   addDoc,
   collection,
@@ -22,7 +22,6 @@ function useFriendRequest() {
    * IMPORTANT: make sure to put functions in useEffect correctly otherwise infinite fetches will be made
    */
   //note: next steps for this feature is to include cloud firestore-trigger functions for real time updates accross all client sides
-
   const collectionRef = collection(db, "friendRequests");
 
   const [sentFriendRequests, setSentFriendRequests] = useState<FriendRequest[]>(
@@ -33,6 +32,13 @@ function useFriendRequest() {
   >([]);
   const errorhandler = useErrorHandler();
   const authContext = useContext(AuthContext);
+
+  useEffect(() => {
+    if (authContext?.user) {
+      fetchFriendRequests();
+      fetchFriendRequests(false);
+    }
+  }, [authContext]);
 
   async function fetchFriendRequests(gettingReqSent: boolean = true) {
     console.log("fetch made gettingReqSent=", gettingReqSent);

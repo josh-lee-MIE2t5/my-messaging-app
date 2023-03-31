@@ -17,6 +17,7 @@
     "firebase": "^9.17.2",
     "firebase-admin": "^11.5.0",
     "fs": "^0.0.1-security",
+    "lodash": "^4.17.21",
     "net": "^1.0.2",
     "next": "13.2.3",
     "nookies": "^2.5.2",
@@ -27,5 +28,8 @@
     "socket.io-client": "^4.6.1",
     "tls": "^0.0.1",
     "typescript": "4.9.5"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.192"
   }
 }
