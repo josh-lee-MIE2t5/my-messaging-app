@@ -34,6 +34,8 @@ function useChatRooms() {
   const authContext = useContext(AuthContext);
 
   const [snapShot, setSnapshot] = useState<QuerySnapshot | null>(null);
+  const [chatroomDocByID, setChatroomDocByID] =
+    useState<DocumentSnapshot<DocumentData> | null>(null);
 
   const [startAfterDoc, setStartAfterDoc] = useState<
     QueryDocumentSnapshot | undefined
@@ -57,7 +59,7 @@ function useChatRooms() {
   const chunkSize = 2;
 
   useEffect(() => {
-    chatRoomListener();
+    if (authContext?.user) chatRoomListener();
   }, []);
 
   useEffect(() => {
@@ -96,7 +98,6 @@ function useChatRooms() {
           });
         }
       } else if (change.type === "modified") {
-        console.log(change.doc.data());
         //IMPORTANT these are not actual "Date" types they are objects
         const newDate = change.doc.data().dateLastSent;
         const oldDate = myChatRooms.find(
@@ -146,7 +147,7 @@ function useChatRooms() {
       });
   }
 
-  async function chatRoomListener() {
+  function chatRoomListener() {
     const unsubscribe = onSnapshot(
       query(
         chatRoomRef,
@@ -159,6 +160,25 @@ function useChatRooms() {
       ),
       (querySnapshot) => {
         setSnapshot(querySnapshot);
+      }
+    );
+    return () => {
+      unsubscribe();
+    };
+  }
+
+  function chatRoomListenerByID(chatroomID: string) {
+    const unsubscribe = onSnapshot(
+      doc(db, "chatRoom", chatroomID),
+      { includeMetadataChanges: true },
+      (doc) => {
+        if (doc.exists()) {
+          setChatroomDocByID(doc);
+        } else {
+          handleError(
+            new Error(`chatroom of ID: ${chatroomID} does not exist`)
+          );
+        }
       }
     );
     return () => {
@@ -221,8 +241,6 @@ function useChatRooms() {
       where("type", "==", chatRoomForm.type)
     );
     const chatroomSnapshot = await getDocs(q);
-    console.log(chatroomSnapshot.docs[0]);
-
     chatroomSnapshot.docs.some(
       (c) =>
         c.data().participants.length === chatRoomForm.participants.length &&
@@ -279,6 +297,9 @@ function useChatRooms() {
   }
 
   return {
+    chatRoomListenerByID,
+    chatroomDocByID,
+    setChatroomDocByID,
     isParticpant,
     onNameChange,
     chatRoomForm,
