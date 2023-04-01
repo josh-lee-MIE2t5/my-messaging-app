@@ -12,7 +12,6 @@ function useSignOut() {
   const signOutUser = async () => {
     try {
       const res = await signOut(authClient);
-      console.log(res);
       authContext?.setUser(null);
       router.push("/");
     } catch (error) {
