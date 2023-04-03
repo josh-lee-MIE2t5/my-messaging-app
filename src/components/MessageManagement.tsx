@@ -12,7 +12,7 @@ function MessageManagement() {
     removeParticipantInForm,
     makeNewChatRoom,
     myChatRooms,
-    onOpen,
+    onMessageRead,
     fetchOlderChatrooms,
   } = useChatRooms();
   //change to have it where user presses a button and it displays a form to make a new chat room
@@ -88,7 +88,7 @@ function MessageManagement() {
               <Link
                 href={`/messages/${c.id}`}
                 onClick={() => {
-                  onOpen(c.id);
+                  onMessageRead(c.id);
                 }}
               >
                 {c.name}

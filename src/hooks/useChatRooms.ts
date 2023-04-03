@@ -19,6 +19,7 @@ import {
   getDoc,
   DocumentSnapshot,
   DocumentData,
+  DocumentChange,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { isEqual } from "lodash";
@@ -65,9 +66,32 @@ function useChatRooms() {
   useEffect(() => {
     snapShot?.docChanges().forEach((change) => {
       if (change.type === "added") {
-        const existingCr = myChatRooms.find((cr) => cr.id === change.doc.id);
-        if (existingCr) {
-          setMyChatRooms((prevState) => [
+        const existingCr = myChatRooms.find((cr) => cr.id === change.doc.id)
+          ? true
+          : false;
+        //make setting client side list of chatroom into own function
+        adjustListedChatrooms(existingCr, change);
+      } else if (change.type === "modified") {
+        //IMPORTANT these are not actual "Date" types they are objects
+        const newDate = change.doc.data().dateLastSent;
+        const oldDate = myChatRooms.find(
+          (c) => c.id === change.doc.id
+        )?.dateLastSent;
+        //only change order when the change involves a new msg sent
+        if (!isEqual(oldDate, newDate)) adjustListedChatrooms(true, change);
+      }
+      if (!myChatRooms.length)
+        setStartAfterDoc(snapShot.docs[snapShot.docs.length - 1]);
+    });
+  }, [snapShot]);
+
+  function adjustListedChatrooms(
+    isReadordering: boolean = true,
+    change: DocumentChange<DocumentData>
+  ) {
+    setMyChatRooms((prevState) =>
+      isReadordering
+        ? [
             {
               name: change.doc.data().name,
               participants: change.doc.data().participants,
@@ -79,33 +103,9 @@ function useChatRooms() {
               mostRecentMsg: change.doc.data().mostRecentMsg,
             },
             ...prevState.filter((cr) => cr.id !== change.doc.id),
-          ]);
-        } else {
-          setMyChatRooms((prevState) => {
-            return [
-              ...prevState,
-              {
-                name: change.doc.data().name,
-                participants: change.doc.data().participants,
-                admin: change.doc.data().admin,
-                id: change.doc.id,
-                readBy: change.doc.data().readBy,
-                dateLastSent: change.doc.data().dateLastSent,
-                type: change.doc.data().type,
-                mostRecentMsg: change.doc.data().mostRecentMsg,
-              },
-            ];
-          });
-        }
-      } else if (change.type === "modified") {
-        //IMPORTANT these are not actual "Date" types they are objects
-        const newDate = change.doc.data().dateLastSent;
-        const oldDate = myChatRooms.find(
-          (c) => c.id === change.doc.id
-        )?.dateLastSent;
-        if (!isEqual(oldDate, newDate))
-          //only change order when the change involves a new msg sent
-          setMyChatRooms((prevState) => [
+          ]
+        : [
+            ...prevState,
             {
               name: change.doc.data().name,
               participants: change.doc.data().participants,
@@ -116,13 +116,9 @@ function useChatRooms() {
               type: change.doc.data().type,
               mostRecentMsg: change.doc.data().mostRecentMsg,
             },
-            ...prevState.filter((c) => c.id !== change.doc.id),
-          ]);
-      }
-      if (!myChatRooms.length)
-        setStartAfterDoc(snapShot.docs[snapShot.docs.length - 1]);
-    });
-  }, [snapShot]);
+          ]
+    );
+  }
 
   async function addParticipant(uid: string) {
     //NOTE check if user is already in the form participants and when the size of the participants array changes to greater than 2 people make it into a groupchat type
@@ -268,7 +264,8 @@ function useChatRooms() {
     }));
   }
 
-  async function onOpen(chatroomId: string) {
+  async function onMessageRead(chatroomId: string) {
+    //rename to view check
     await updateDoc(doc(db, "chatRoom", chatroomId), {
       readBy: arrayUnion({
         email: authContext?.user?.email,
@@ -307,7 +304,7 @@ function useChatRooms() {
     removeParticipantInForm,
     makeNewChatRoom,
     myChatRooms,
-    onOpen,
+    onMessageRead,
     fetchOlderChatrooms,
   };
 }

@@ -22,7 +22,7 @@ function DirectMessagePage() {
   } = useMessages();
 
   useEffect(() => {
-    if (chatRoomId && authContext?.user && typeof chatRoomId === "string") {
+    if (authContext?.user && typeof chatRoomId === "string") {
       //confirm user is a participant of the group to be able to enter the chatRoom
       //if the user is no longer a participant redirect user
       const isParticipantPromise = isParticpant(
@@ -46,7 +46,8 @@ function DirectMessagePage() {
       </ul>
       <p>
         {readBy.length
-          ? `read by ${readBy.map((rb, i) => {
+          ? `read by ${readBy.map((rb) => {
+              //compare authcontext user and sent by user of the most recent msg
               return ` ${rb.email}`;
             })}`
           : "delivered"}

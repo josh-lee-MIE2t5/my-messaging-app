@@ -23,9 +23,12 @@ import { useRouter } from "next/router";
 import { ChangeEvent, useContext, useEffect, useState } from "react";
 
 function useMessages() {
+  const chunkSize = 15;
+
   const [readBy, setReadBy] = useState<FirestoreUser[]>([]);
 
-  const { chatRoomListenerByID, onOpen, chatroomDocByID } = useChatRooms();
+  const { chatRoomListenerByID, onMessageRead, chatroomDocByID } =
+    useChatRooms();
   const authContext = useContext(AuthContext);
   const router = useRouter();
   const { chatRoomId } = router.query;
@@ -62,7 +65,7 @@ function useMessages() {
   useEffect(() => {
     snapShot?.docChanges().forEach((change) => {
       if (change.type === "added") {
-        if (typeof chatRoomId === "string") onOpen(chatRoomId);
+        if (typeof chatRoomId === "string") onMessageRead(chatRoomId);
         setMessages((prevState) => {
           return messages.length
             ? [
@@ -102,7 +105,7 @@ function useMessages() {
         messagesCollectionRef,
         where("chatRoomId", "==", chatRoomId),
         orderBy("date", "desc"),
-        limit(15),
+        limit(chunkSize),
         startAfter(startAfterDoc)
       );
       const nextBatchSnapshot = await getDocs(q);
@@ -174,7 +177,7 @@ function useMessages() {
         messagesCollectionRef,
         where("chatRoomId", "==", chatRoomId),
         orderBy("date", "desc"),
-        limit(15)
+        limit(chunkSize)
       ),
       (querySnapshot) => {
         setSnapshot(querySnapshot);
