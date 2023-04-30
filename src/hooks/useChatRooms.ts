@@ -24,6 +24,7 @@ import {
 import { db } from "@/firebase/firebase";
 import { isEqual } from "lodash";
 import { useErrorHandler } from "react-error-boundary";
+import FirestoreUser from "@/types/FirestoreUser.types";
 
 function useChatRooms() {
   interface ChatRoomListType extends ChatRoom {
@@ -293,7 +294,25 @@ function useChatRooms() {
     return out;
   }
 
+  async function removeUser(chatRoomId: string, userId: string) {
+    try {
+      const chatRoomSnap = await getDoc(doc(db, "chatRoom", chatRoomId));
+      if (chatRoomSnap.exists()) {
+        await updateDoc(doc(db, "chatRoom", chatRoomId), {
+          participants: chatRoomSnap
+            .data()
+            .participants.filter(
+              (user: { uid: string }) => user.uid !== userId
+            ),
+        });
+      }
+    } catch (e) {
+      handleError(e);
+    }
+  }
+
   return {
+    removeUser,
     chatRoomListenerByID,
     chatroomDocByID,
     setChatroomDocByID,

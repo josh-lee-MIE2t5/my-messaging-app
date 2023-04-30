@@ -50,6 +50,8 @@ function useMessages() {
 
   const messagesCollectionRef = collection(db, "messages");
 
+  const [admin, setAdmin] = useState<FirestoreUser | undefined>(undefined);
+
   useEffect(() => {
     if (chatRoomId && typeof chatRoomId === "string") {
       chatRoomListenerByID(chatRoomId);
@@ -58,8 +60,13 @@ function useMessages() {
   }, [chatRoomId]);
 
   useEffect(() => {
-    console.log(chatroomDocByID?.data());
-    if (chatroomDocByID?.exists()) setReadBy(chatroomDocByID.data().readBy);
+    if (chatroomDocByID?.exists()) {
+      setReadBy(chatroomDocByID.data().readBy);
+      setAdmin({
+        email: chatroomDocByID.data().admin.email,
+        uid: chatroomDocByID.data().admin.uid,
+      });
+    }
   }, [chatroomDocByID]);
 
   useEffect(() => {
@@ -188,6 +195,7 @@ function useMessages() {
     };
   }
   return {
+    admin,
     readBy,
     SendMessage,
     getChatRoomDetails,

@@ -2,14 +2,14 @@ import { AuthContext } from "@/context/AuthContext";
 import useChatRooms from "@/hooks/useChatRooms";
 import useMessages from "@/hooks/useMessages";
 import { useRouter } from "next/router";
-import { useContext, useEffect } from "react";
+import { ReactElement, useContext, useEffect, useState } from "react";
 
 function DirectMessagePage() {
   const authContext = useContext(AuthContext);
   const router = useRouter();
   const { chatRoomId } = router.query;
 
-  const { isParticpant } = useChatRooms();
+  const { isParticpant, removeUser } = useChatRooms();
   const {
     readBy,
     SendMessage,
@@ -19,12 +19,36 @@ function DirectMessagePage() {
     message,
     setMessage,
     messages,
+    admin,
   } = useMessages();
 
+  const [userList, setUserList] = useState<ReactElement<any, any> | undefined>(
+    undefined
+  );
+
   useEffect(() => {
-    if (authContext?.user && typeof chatRoomId === "string") {
+    if (authContext?.user && typeof chatRoomId === "string" && admin) {
       //confirm user is a participant of the group to be able to enter the chatRoom
       //if the user is no longer a participant redirect user
+      if (admin.uid === authContext.user.uid)
+        setUserList(
+          <ul>
+            {message.to.map((p) => (
+              <li>
+                {p.email}
+                <button
+                  onClick={(e) => {
+                    typeof p.uid === "string" &&
+                      removeUser(message.chatRoomId, p.uid);
+                  }}
+                >
+                  remove
+                </button>
+              </li>
+            ))}
+          </ul>
+        );
+
       const isParticipantPromise = isParticpant(
         authContext.user.uid,
         chatRoomId
@@ -33,7 +57,7 @@ function DirectMessagePage() {
         p ? getChatRoomDetails() : router.push("/"); //this is only client side guarding look into other options
       });
     }
-  }, [chatRoomId, authContext]);
+  }, [chatRoomId, authContext, admin]);
 
   return (
     <div>
@@ -69,6 +93,7 @@ function DirectMessagePage() {
       >
         More
       </button>
+      {userList}
     </div>
   );
 }
