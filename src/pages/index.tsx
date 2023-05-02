@@ -1,25 +1,14 @@
 import Head from "next/head";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { AuthContext } from "@/context/AuthContext";
 import useSignOut from "@/hooks/useSignOut";
-import useSignIn from "@/hooks/useSignIn";
-import useOnChange from "@/hooks/useOnChange";
 import MessageManagement from "@/components/MessageManagement";
+import Login from "@/components/Login";
 
 export default function Home() {
   const user = useContext(AuthContext);
   const signOut = useSignOut();
-  const onChange = useOnChange();
 
-  interface formDetailsInterface {
-    email: string;
-    password: string;
-  }
-  const [formDetails, setFormDetails] = useState<formDetailsInterface>({
-    email: "",
-    password: "",
-  });
-  const { signInUserEmail, signInWithGoogle } = useSignIn();
   return (
     <>
       <Head>
@@ -34,40 +23,7 @@ export default function Home() {
             <MessageManagement />
           </>
         ) : (
-          <form>
-            <input
-              type="email"
-              name="email"
-              onChange={(e) => {
-                onChange(e, setFormDetails);
-              }}
-              value={formDetails.email}
-            />
-            <input
-              type="password"
-              name="password"
-              onChange={(e) => {
-                onChange(e, setFormDetails);
-              }}
-              value={formDetails.password}
-            />
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                signInUserEmail(formDetails.email, formDetails.password);
-              }}
-            >
-              sign in
-            </button>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                signInWithGoogle();
-              }}
-            >
-              Sign in with google
-            </button>
-          </form>
+          <Login />
         )}
       </main>
     </>
