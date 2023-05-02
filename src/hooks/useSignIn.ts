@@ -38,7 +38,7 @@ function useSignIn() {
         await addDoc(dbRef, data);
       }
     } catch (e) {
-      handleError(e);
+      console.log(e);
     }
   };
   return { signInUserEmail, signInWithGoogle };
