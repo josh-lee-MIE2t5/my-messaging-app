@@ -80,18 +80,6 @@ function Login() {
             }
           />
         </FormControl>
-
-        {/* <TextField
-          className={styles.textfield}
-          id="password"
-          label="Password"
-          type="password"
-          variant="outlined"
-          name="password"
-          onChange={(e) => {
-            onChange(e, setFormDetails);
-          }}
-        /> */}
         <Button
           className={styles.textfield}
           variant="contained"
