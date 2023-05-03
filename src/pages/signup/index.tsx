@@ -1,46 +1,18 @@
-import React, { ChangeEvent, useState } from "react";
-import useSignUp from "@/hooks/useSignUp";
-import useOnChange from "@/hooks/useOnChange";
+import React, { useContext, useEffect } from "react";
+import { AuthContext } from "@/context/AuthContext";
+import { useRouter } from "next/router";
+import SignUpForm from "@/components/SignUpForm";
 function SignUpPage() {
-  const signUp = useSignUp();
-  const onChange = useOnChange();
-  interface formDetailsInterface {
-    email: string;
-    password: string;
-  }
-  const [formDetails, setFormDetails] = useState<formDetailsInterface>({
-    email: "",
-    password: "",
-  });
+  const authContext = useContext(AuthContext);
+  const { push } = useRouter();
 
-  return (
-    <form>
-      <input
-        type="email"
-        name="email"
-        onChange={(e) => {
-          onChange(e, setFormDetails);
-        }}
-        value={formDetails.email}
-      />
-      <input
-        type="password"
-        name="password"
-        onChange={(e) => {
-          onChange(e, setFormDetails);
-        }}
-        value={formDetails.password}
-      />
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          signUp(formDetails.email, formDetails.password);
-        }}
-      >
-        sign up
-      </button>
-    </form>
-  );
+  useEffect(() => {
+    if (authContext?.user) {
+      push("/");
+    }
+  }, [authContext]);
+  // replace still loading text with loading icon later
+  return authContext?.user ? <p>still loading</p> : <SignUpForm />;
 }
 
 export default SignUpPage;

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import useSignIn from "@/hooks/useSignIn";
+import useSignUp from "@/hooks/useSignUp";
 import useOnChange from "@/hooks/useOnChange";
 import {
   InputLabel,
@@ -16,10 +17,10 @@ import {
   IconButton,
 } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
-import styles from "../styles/Login.module.css";
+import styles from "../styles/SignUpForm.module.css";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
-function Login() {
+function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -35,15 +36,39 @@ function Login() {
   interface formDetailsInterface {
     email: string;
     password: string;
+    username: string;
   }
   const [formDetails, setFormDetails] = useState<formDetailsInterface>({
     email: "",
     password: "",
+    username: "",
   });
-  const { signInUserEmail, signInWithGoogle } = useSignIn();
+  const { signInWithGoogle } = useSignIn();
+  const signUp = useSignUp();
   return (
     <div className={styles.container}>
       <FormControl className={styles.form}>
+        <Grid
+          onClick={(e) => {
+            signInWithGoogle();
+          }}
+          style={{ width: "20rem", marginTop: "0.5em", cursor: "pointer" }}
+          container
+        >
+          <Grid style={{ textAlign: "end" }} xs={4} item>
+            <GoogleIcon />
+          </Grid>
+          <Grid xs={6} item>
+            <Typography style={{ marginLeft: "0.5em" }}>
+              Login with Google
+            </Typography>
+          </Grid>
+        </Grid>
+        <Box>
+          <Divider variant="middle" className={styles.orLineBreak}>
+            <Typography>OR</Typography>
+          </Divider>
+        </Box>
         <TextField
           className={styles.textfield}
           id="email"
@@ -55,7 +80,18 @@ function Login() {
             onChange(e, setFormDetails);
           }}
         />
-        <FormControl>
+        <TextField
+          className={styles.textfield}
+          id="username"
+          label="Username"
+          name="username"
+          variant="outlined"
+          value={formDetails.username}
+          onChange={(e) => {
+            onChange(e, setFormDetails);
+          }}
+        />
+        <FormControl className={styles.textfield}>
           <InputLabel htmlFor="password">Password</InputLabel>
           <OutlinedInput
             name="password"
@@ -81,45 +117,27 @@ function Login() {
           />
         </FormControl>
         <Button
-          className={styles.signInWithEmail}
+          className={styles.signUpWithEmail}
           variant="contained"
           onClick={(e) => {
             e.preventDefault();
-            signInUserEmail(formDetails.email, formDetails.password);
+            signUp(
+              formDetails.email,
+              formDetails.password,
+              formDetails.username
+            );
           }}
         >
-          Login
+          Sign Up
         </Button>
-
-        <Box>
-          <Divider variant="middle" className={styles.orLineBreak}>
-            <Typography>OR</Typography>
-          </Divider>
-        </Box>
-        <Grid
-          onClick={(e) => {
-            signInWithGoogle();
-          }}
-          style={{ width: "20rem", marginTop: "0.5em", cursor: "pointer" }}
-          container
-        >
-          <Grid style={{ textAlign: "end" }} xs={4} item>
-            <GoogleIcon />
-          </Grid>
-          <Grid xs={6} item>
-            <Typography style={{ marginLeft: "0.5em" }}>
-              Login with Google
-            </Typography>
-          </Grid>
-        </Grid>
       </FormControl>
       <div className={styles.noAccount}>
         <Typography>
-          Don't have an account? <Link href="/signup">Sign up</Link>
+          Already have an account? <Link href="/">Login</Link>
         </Typography>
       </div>
     </div>
   );
 }
 
-export default Login;
+export default SignUpForm;

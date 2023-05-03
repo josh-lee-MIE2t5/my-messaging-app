@@ -10,7 +10,7 @@
 .form {
     padding: 2em;
     width: 20rem;
-    height: 15rem;
+    height: 20rem;
     display: flex;
     justify-content: center;
     border: solid #dbdbdb;
@@ -19,16 +19,17 @@
 
 .textfield {
     margin-top: 0.5em;
-    margin-bottom: 1em;
+    margin-bottom: 0.5em;
 }
 
-.signInWithEmail {
-    margin-top: 1em;
-}
 
 .orLineBreak {
     margin: 0.5em 0;
 
+}
+
+.signUpWithEmail {
+    margin-top: 0.5em;
 }
 
 .noAccount {
