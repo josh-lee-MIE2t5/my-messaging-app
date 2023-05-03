@@ -4,26 +4,45 @@ import { useRouter } from "next/router";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import authClient from "@/firebase/firebase";
 import { db } from "@/firebase/firebase";
-import { addDoc, collection } from "firebase/firestore";
-import { useErrorHandler } from "react-error-boundary";
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { AlertContext } from "@/context/AlertContext";
 function useSignUp() {
-  const handleError = useErrorHandler();
   const authContext = useContext(AuthContext);
+  const alertContext = useContext(AlertContext);
   const router = useRouter();
-  async function signUp(email: string, password: string) {
+  async function signUp(email: string, password: string, username: string) {
     try {
-      const res = await createUserWithEmailAndPassword(
-        authClient,
-        email,
-        password
+      const queryForUserName = query(
+        collection(db, "users"),
+        where("username", "==", username)
       );
-      authContext?.setUser(res.user);
-      const dbRef = collection(db, "users");
-      const data = { email: res.user.email, uid: res.user.uid };
-      await addDoc(dbRef, data);
-      router.push("/");
+      const withSameUserNameSnapshot = await getDocs(queryForUserName);
+      if (withSameUserNameSnapshot.size === 0) {
+        const res = await createUserWithEmailAndPassword(
+          authClient,
+          email,
+          password
+        );
+        authContext?.setUser(res.user);
+        const dbRef = collection(db, "users");
+        const data = {
+          email: res.user.email,
+          uid: res.user.uid,
+          username: username,
+        };
+        await addDoc(dbRef, data);
+        router.push("/");
+      } else {
+        throw new Error(
+          `Username ${username} already in use please choose another one`
+        );
+      }
     } catch (error) {
-      handleError(error);
+      if (error instanceof Error) {
+        alertContext?.setType("error");
+        alertContext?.setError(error);
+        alertContext?.setMsg(error.message);
+      }
     }
   }
   return signUp;

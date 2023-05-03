@@ -6,18 +6,20 @@ import {
 import { AuthContext } from "@/context/AuthContext";
 import { useContext } from "react";
 import authClient, { db } from "@/firebase/firebase";
-import { useErrorHandler } from "react-error-boundary";
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { AlertContext } from "@/context/AlertContext";
 
 function useSignIn() {
   const authContext = useContext(AuthContext);
-  const handleError = useErrorHandler();
+  const alertContext = useContext(AlertContext);
   const signInUserEmail = async (email: string, password: string) => {
     try {
       const res = await signInWithEmailAndPassword(authClient, email, password);
       authContext?.setUser(res.user);
     } catch (error) {
-      handleError(error);
+      alertContext?.setType("error");
+      alertContext?.setError(error);
+      alertContext?.setMsg("Invalid email or password");
     }
   };
   const signInWithGoogle = async () => {
