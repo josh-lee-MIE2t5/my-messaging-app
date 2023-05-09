@@ -1,0 +1,41 @@
+.chatRoomListItemContainer {
+    padding: 0.2em 0;
+    background-color: #737373;
+    min-width: 100%;
+    border-top: 0.5px solid black;
+    border-bottom: 0.5px solid black;
+    padding: 1em 0;
+
+}
+
+.CRLIContentWrapper {
+    display: flex;
+    justify-content: start;
+    align-items: center
+}
+
+
+
+.chatRoomAvatar {
+    margin-left: 1em;
+}
+
+.chatRoomTxtDetails {
+    margin-left: 2em;
+}
+
+.chatRoomName {
+    color: #e2e2e2
+}
+
+.mostRecentTxt {
+    color: #aaaaaa;
+}
+
+.unOpenedIndicator {
+    background-color: #2494fc;
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+    margin-right: 0.5em;
+}

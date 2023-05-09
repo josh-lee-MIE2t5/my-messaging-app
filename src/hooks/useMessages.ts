@@ -197,6 +197,7 @@ function useMessages() {
   return {
     admin,
     readBy,
+    setReadBy,
     SendMessage,
     getChatRoomDetails,
     onMessageChange,
@@ -204,6 +205,7 @@ function useMessages() {
     messages,
     message,
     setMessage,
+    setMessages,
   };
 }
 
