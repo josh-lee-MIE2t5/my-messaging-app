@@ -20,9 +20,7 @@ export default function Home() {
       <main>
         {user?.user ? (
           <>
-            {/* <button onClick={signOut}>logout</button>
-            <MessageManagement /> */}
-            <MessagesList />
+            <MessagesList atRoot={true} />
           </>
         ) : (
           <Login />

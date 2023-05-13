@@ -6,14 +6,16 @@ import { AuthContext } from "@/context/AuthContext";
 import { ReactElement, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import useMessages from "@/hooks/useMessages";
+import MessageDisplay from "./MessageDisplay";
 
-function MessagesList() {
+function MessagesList({ atRoot }: { atRoot: boolean }) {
   const authContext = useContext(AuthContext);
   const { myChatRooms, isParticpant, removeUser, onMessageRead } =
     useChatRooms();
   const router = useRouter();
   const { chatRoomId } = router.query;
   const {
+    loading,
     readBy,
     SendMessage,
     getChatRoomDetails,
@@ -66,7 +68,7 @@ function MessagesList() {
     <ListItem
       onClick={() => {
         onMessageRead(c.id);
-        setMessages([]);
+        if (chatRoomId !== c.id) setMessages([]);
       }}
       button
       key={c.id}
@@ -77,6 +79,7 @@ function MessagesList() {
         id={c.id}
         name={c.name}
         isUnopened={c.readBy.some((u) => u.uid === authContext?.user?.uid)}
+        mostRecentMsg={c.mostRecentMsg}
       />
     </ListItem>
   ));
@@ -88,47 +91,60 @@ function MessagesList() {
           <div className={styles.chatroomListHolder}>
             <List style={{ maxWidth: "100%" }}>{listOfChatRooms}</List>
           </div>
-          <div className={styles.chatroomSection}>
-            <div>
-              <ul>
-                {messages.map((m, i) => (
-                  <li key={i}>
-                    {m.from.email} said {m.text}
-                  </li>
-                ))}
-              </ul>
-              <p>
-                {readBy.length
-                  ? `read by ${readBy.map((rb) => {
-                      //compare authcontext user and sent by user of the most recent msg
-                      return ` ${rb.email}`;
-                    })}`
-                  : "delivered"}
-              </p>
+          {atRoot ? (
+            <>
+              <div>send a message to friends</div>
+            </>
+          ) : (
+            <div className={styles.chatroomSection}>
+              <div>
+                {loading && <span>Loading...</span>}
+                <ul>
+                  {messages.map((m, i) =>
+                    i ? (
+                      <MessageDisplay
+                        text={m.text}
+                        from={m.from}
+                        fromOfMsgJustBefore={messages[i - 1].from}
+                      />
+                    ) : (
+                      <MessageDisplay text={m.text} from={m.from} />
+                    )
+                  )}
+                </ul>
+                <p>
+                  {readBy.length
+                    ? `read by ${readBy.map((rb) => {
+                        //compare authcontext user and sent by user of the most recent msg
+                        return ` ${rb.email}`;
+                      })}`
+                    : "delivered"}
+                </p>
 
-              <input
-                type="text"
-                onChange={onMessageChange}
-                value={message.text}
-              />
-              <button
-                onClick={(e) => {
-                  if (typeof chatRoomId === "string") SendMessage(chatRoomId);
-                  setMessage((prevState) => ({ ...prevState, text: "" }));
-                }}
-              >
-                Send
-              </button>
-              <button
-                onClick={() => {
-                  getOlderMsgs();
-                }}
-              >
-                More
-              </button>
-              {userList}
+                <input
+                  type="text"
+                  onChange={onMessageChange}
+                  value={message.text}
+                />
+                <button
+                  onClick={(e) => {
+                    if (typeof chatRoomId === "string") SendMessage(chatRoomId);
+                    setMessage((prevState) => ({ ...prevState, text: "" }));
+                  }}
+                >
+                  Send
+                </button>
+                <button
+                  onClick={() => {
+                    getOlderMsgs();
+                  }}
+                >
+                  More
+                </button>
+                {userList}
+              </div>
             </div>
-          </div>
+          )}
         </>
       ) : (
         <div>Loading element here</div>

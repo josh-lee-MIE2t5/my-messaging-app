@@ -23,6 +23,11 @@ function ChatRoomListItem({
   mostRecentMsg,
   isUnopened,
 }: Props) {
+  const mostRecentMsgDisplay =
+    mostRecentMsg &&
+    (mostRecentMsg?.from.username || mostRecentMsg?.from.email) +
+      ": " +
+      mostRecentMsg?.text;
   return (
     <Box className={styles.chatRoomListItemContainer}>
       <Link
@@ -38,7 +43,7 @@ function ChatRoomListItem({
           <div className={styles.chatRoomTxtDetails}>
             <Typography className={styles.chatRoomName}>{name}</Typography>
             <Typography className={styles.mostRecentTxt}>
-              user1: great to hear guys, lets...
+              {mostRecentMsgDisplay}
             </Typography>
           </div>
         </div>

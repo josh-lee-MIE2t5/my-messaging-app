@@ -52,6 +52,8 @@ function useMessages() {
 
   const [admin, setAdmin] = useState<FirestoreUser | undefined>(undefined);
 
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     if (chatRoomId && typeof chatRoomId === "string") {
       chatRoomListenerByID(chatRoomId);
@@ -73,6 +75,7 @@ function useMessages() {
     snapShot?.docChanges().forEach((change) => {
       if (change.type === "added") {
         if (typeof chatRoomId === "string") onMessageRead(chatRoomId);
+        if (!messages.length) setLoading(true);
         setMessages((prevState) => {
           return messages.length
             ? [
@@ -98,6 +101,7 @@ function useMessages() {
                 ...prevState,
               ];
         });
+        setLoading(false);
       }
     });
     if (!messages.length)
@@ -106,6 +110,7 @@ function useMessages() {
 
   async function getOlderMsgs() {
     //implement state for loading for a loading css animation
+    setLoading(true);
     if (startAfterDoc) {
       console.log("fetching older msgs");
       const q = query(
@@ -135,6 +140,7 @@ function useMessages() {
         nextBatchSnapshot.docs[nextBatchSnapshot.docs.length - 1]
       );
     }
+    setLoading(false);
   }
 
   function onMessageChange(e: ChangeEvent<HTMLInputElement>) {
@@ -195,6 +201,7 @@ function useMessages() {
     };
   }
   return {
+    loading,
     admin,
     readBy,
     setReadBy,

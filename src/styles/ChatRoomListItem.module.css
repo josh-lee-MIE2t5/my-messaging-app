@@ -5,7 +5,6 @@
     border-top: 0.5px solid black;
     border-bottom: 0.5px solid black;
     padding: 1em 0;
-
 }
 
 .CRLIContentWrapper {
@@ -13,8 +12,6 @@
     justify-content: start;
     align-items: center
 }
-
-
 
 .chatRoomAvatar {
     margin-left: 1em;
@@ -30,6 +27,11 @@
 
 .mostRecentTxt {
     color: #aaaaaa;
+    display: inline-block;
+    max-width: 200px;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .unOpenedIndicator {
