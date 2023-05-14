@@ -23,7 +23,7 @@ import { useRouter } from "next/router";
 import { ChangeEvent, useContext, useEffect, useState } from "react";
 
 function useMessages() {
-  const chunkSize = 15;
+  const chunkSize = 25;
 
   const [readBy, setReadBy] = useState<FirestoreUser[]>([]);
 
@@ -143,7 +143,9 @@ function useMessages() {
     setLoading(false);
   }
 
-  function onMessageChange(e: ChangeEvent<HTMLInputElement>) {
+  function onMessageChange(
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) {
     setMessage((prevState) => ({
       ...prevState,
       date: new Date(),

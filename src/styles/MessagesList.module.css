@@ -5,7 +5,6 @@
     margin-top: 1em;
     width: 70vw;
     display: flex;
-
 }
 
 .chatroomListHolder {
@@ -13,6 +12,52 @@
 }
 
 .chatroomSection {
-    background-color: pink;
+    background-color: rgb(52, 52, 52);
     min-width: 70%;
+    height: 95vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.messagesHolderForChatroomOpen {
+    overflow-y: scroll;
+    height: 83vh;
+    flex-direction: column-reverse;
+    display: flex;
+}
+
+.msgSendingControls {
+    border: 1px solid grey;
+    border-radius: 100px;
+    min-height: 2em;
+    height: fit-content;
+    width: 95%;
+    margin: auto;
+    margin-top: 0.5em;
+    margin-bottom: 1.5em;
+    overflow-y: visible;
+    display: flex;
+    align-items: center;
+    padding: 0.5em;
+}
+
+.msgTxtInput {
+    border: none;
+    background-color: inherit;
+    color: white;
+    min-height: 1.25em;
+    max-height: 7em;
+    width: 70%;
+    resize: none;
+    font-size: 16px;
+    margin-left: 3em;
+    display: block;
+}
+
+.msgTxtInput:focus {
+    outline: none;
+}
+
+.msgTxtInput:focus::placeholder {
+    color: white;
 }

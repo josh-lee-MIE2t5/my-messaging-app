@@ -1,20 +1,18 @@
 .MessageWrapperFromYou {
-    background-color: rgb(52, 52, 52);
     display: flex;
     align-items: end;
     flex-direction: column;
 }
 
 .MessageWrapperFromOther {
-    background-color: rgb(52, 52, 52);
     display: flex;
     align-items: start;
     flex-direction: column;
 }
 
 .TextFromYou {
-    width: fit-content;
-    max-width: 10em;
+    max-width: 25em;
+    overflow-wrap: break-word;
     background-color: #0091ff;
     color: #e2e2e2;
     padding: 0.3em;
@@ -22,8 +20,6 @@
 }
 
 .TextSentFromOther {
-    width: fit-content;
-    max-width: 10em;
     color: #e2e2e2;
     background-color: #737373;
     padding: 0.3em;

@@ -1,4 +1,11 @@
-import { List, ListItem, Avatar, Typography, Link } from "@mui/material";
+import {
+  List,
+  ListItem,
+  Avatar,
+  Typography,
+  Link,
+  TextField,
+} from "@mui/material";
 import useChatRooms from "@/hooks/useChatRooms";
 import styles from "../styles/MessagesList.module.css";
 import ChatRoomListItem from "./ChatRoomListItem";
@@ -30,6 +37,8 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
   const [userList, setUserList] = useState<ReactElement<any, any> | undefined>(
     undefined
   );
+
+  const [oldDiff, setOldDiff] = useState(0);
 
   useEffect(() => {
     if (authContext?.user && typeof chatRoomId === "string" && admin) {
@@ -97,8 +106,45 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
             </>
           ) : (
             <div className={styles.chatroomSection}>
-              <div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  borderBottom: "1px solid grey",
+                }}
+              >
+                <Avatar style={{ margin: "0.5em 1em" }}></Avatar>
+                {/* putt the profile picture here later */}
+                <Typography style={{ color: "white" }}>
+                  {myChatRooms.find((c) => c.id === message.chatRoomId)?.name}
+                </Typography>
+              </div>
+              <div
+                id="listOfMessagesWrapper"
+                className={styles.messagesHolderForChatroomOpen}
+              >
                 {loading && <span>Loading...</span>}
+                {myChatRooms.find((c) => c.id === chatRoomId)?.mostRecentMsg
+                  ?.from.uid === authContext.user?.uid && (
+                  <Typography
+                    style={{
+                      textAlign: "end",
+                      color: "white",
+                      fontSize: "0.75em",
+                      marginRight: "0.5em",
+                    }}
+                  >
+                    {readBy.filter((u) => u.uid !== authContext.user?.uid)
+                      .length
+                      ? `read by ${readBy
+                          .filter((u) => u.uid !== authContext.user?.uid)
+                          .map((rb) => {
+                            return ` ${rb.email}`;
+                          })}`
+                      : "Delivered"}
+                  </Typography>
+                )}
+
                 <ul>
                   {messages.map((m, i) =>
                     i ? (
@@ -112,36 +158,38 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
                     )
                   )}
                 </ul>
-                <p>
-                  {readBy.length
-                    ? `read by ${readBy.map((rb) => {
-                        //compare authcontext user and sent by user of the most recent msg
-                        return ` ${rb.email}`;
-                      })}`
-                    : "delivered"}
-                </p>
-
-                <input
-                  type="text"
+              </div>
+              <div className={styles.msgSendingControls}>
+                <textarea
+                  onInput={(element) => {
+                    element.currentTarget.style.height = "10px";
+                    element.currentTarget.style.height =
+                      element.currentTarget.scrollHeight + "px";
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.keyCode === 13 && !e.shiftKey) {
+                      // prevent default behavior
+                      e.preventDefault();
+                      if (typeof chatRoomId === "string" && message.text.length)
+                        SendMessage(chatRoomId);
+                      setMessage((prevState) => ({ ...prevState, text: "" }));
+                    }
+                  }}
                   onChange={onMessageChange}
                   value={message.text}
+                  className={styles.msgTxtInput}
+                  placeholder="Message"
+                  rows={1}
                 />
                 <button
                   onClick={(e) => {
-                    if (typeof chatRoomId === "string") SendMessage(chatRoomId);
+                    if (typeof chatRoomId === "string" && message.text.length)
+                      SendMessage(chatRoomId);
                     setMessage((prevState) => ({ ...prevState, text: "" }));
                   }}
                 >
                   Send
                 </button>
-                <button
-                  onClick={() => {
-                    getOlderMsgs();
-                  }}
-                >
-                  More
-                </button>
-                {userList}
               </div>
             </div>
           )}
