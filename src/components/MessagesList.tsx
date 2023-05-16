@@ -38,8 +38,6 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
     undefined
   );
 
-  const [oldDiff, setOldDiff] = useState(0);
-
   useEffect(() => {
     if (authContext?.user && typeof chatRoomId === "string" && admin) {
       //confirm user is a participant of the group to be able to enter the chatRoom
@@ -119,10 +117,7 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
                   {myChatRooms.find((c) => c.id === message.chatRoomId)?.name}
                 </Typography>
               </div>
-              <div
-                id="listOfMessagesWrapper"
-                className={styles.messagesHolderForChatroomOpen}
-              >
+              <div className={styles.messagesHolderForChatroomOpen}>
                 {loading && <span>Loading...</span>}
                 {myChatRooms.find((c) => c.id === chatRoomId)?.mostRecentMsg
                   ?.from.uid === authContext.user?.uid && (
@@ -144,17 +139,30 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
                       : "Delivered"}
                   </Typography>
                 )}
-
-                <ul>
+                <ul
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    padding: "0",
+                    margin: "0",
+                  }}
+                >
                   {messages.map((m, i) =>
                     i ? (
                       <MessageDisplay
                         text={m.text}
                         from={m.from}
                         fromOfMsgJustBefore={messages[i - 1].from}
+                        date={m.date}
+                        dateOfMsgJustBefore={messages[i - 1].date}
                       />
                     ) : (
-                      <MessageDisplay text={m.text} from={m.from} />
+                      <MessageDisplay
+                        text={m.text}
+                        from={m.from}
+                        date={m.date}
+                      />
                     )
                   )}
                 </ul>
@@ -168,7 +176,6 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
                   }}
                   onKeyDown={(e) => {
                     if (e.keyCode === 13 && !e.shiftKey) {
-                      // prevent default behavior
                       e.preventDefault();
                       if (typeof chatRoomId === "string" && message.text.length)
                         SendMessage(chatRoomId);
@@ -181,15 +188,23 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
                   placeholder="Message"
                   rows={1}
                 />
-                <button
-                  onClick={(e) => {
-                    if (typeof chatRoomId === "string" && message.text.length)
-                      SendMessage(chatRoomId);
-                    setMessage((prevState) => ({ ...prevState, text: "" }));
-                  }}
-                >
-                  Send
-                </button>
+
+                {message.text.length ? (
+                  <button
+                    className={styles.sendBtn}
+                    onClick={(e) => {
+                      if (typeof chatRoomId === "string" && message.text.length)
+                        SendMessage(chatRoomId);
+                      setMessage((prevState) => ({ ...prevState, text: "" }));
+                    }}
+                  >
+                    <Typography>Send</Typography>
+                  </button>
+                ) : (
+                  <>
+                    <div>Put icon for image here</div>
+                  </>
+                )}
               </div>
             </div>
           )}

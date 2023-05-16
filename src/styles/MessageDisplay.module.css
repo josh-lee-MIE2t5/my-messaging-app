@@ -11,19 +11,23 @@
 }
 
 .TextFromYou {
-    max-width: 25em;
+    max-width: 20em;
     overflow-wrap: break-word;
     background-color: #0091ff;
     color: #e2e2e2;
     padding: 0.3em;
     border-radius: 10px;
+
 }
 
 .TextSentFromOther {
-    color: #e2e2e2;
+    max-width: 20em;
+    overflow-wrap: break-word;
     background-color: #737373;
+    color: #e2e2e2;
     padding: 0.3em;
     border-radius: 10px;
+
 }
 
 .sentFromIndicator {

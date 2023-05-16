@@ -8,12 +8,12 @@
 }
 
 .chatroomListHolder {
-    min-width: 30%;
+    min-width: 40%;
 }
 
 .chatroomSection {
     background-color: rgb(52, 52, 52);
-    min-width: 70%;
+    min-width: 60%;
     height: 95vh;
     display: flex;
     flex-direction: column;
@@ -22,8 +22,8 @@
 .messagesHolderForChatroomOpen {
     overflow-y: scroll;
     height: 83vh;
-    flex-direction: column-reverse;
     display: flex;
+    flex-direction: column-reverse;
 }
 
 .msgSendingControls {
@@ -47,11 +47,23 @@
     color: white;
     min-height: 1.25em;
     max-height: 7em;
-    width: 70%;
+    width: 80%;
     resize: none;
     font-size: 16px;
     margin-left: 3em;
     display: block;
+}
+
+.sendBtn {
+    margin-left: auto;
+    background-color: inherit;
+    border: none;
+    text-decoration: none;
+    color: rgb(0, 115, 255);
+}
+
+.sendBtn :hover {
+    color: rgb(165, 205, 255);
 }
 
 .msgTxtInput:focus {
