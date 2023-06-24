@@ -1,19 +1,18 @@
 .msgsListSection {
     background-color: blue;
-    margin-left: 6em;
+    margin-left: 2em;
     height: 95vh;
     margin-top: 1em;
-    width: 70vw;
+    width: 90vw;
     display: flex;
 }
 
 .chatroomListHolder {
-    min-width: 40%;
+    width: 400px;
 }
 
 .chatroomSection {
     background-color: rgb(52, 52, 52);
-    min-width: 60%;
     height: 95vh;
     display: flex;
     flex-direction: column;
@@ -26,50 +25,12 @@
     flex-direction: column-reverse;
 }
 
-.msgSendingControls {
-    border: 1px solid grey;
-    border-radius: 100px;
-    min-height: 2em;
-    height: fit-content;
-    width: 95%;
-    margin: auto;
-    margin-top: 0.5em;
-    margin-bottom: 1.5em;
-    overflow-y: visible;
+
+.rootPageDisplay {
+    width: 20em;
+    height: 20em;
     display: flex;
+    justify-content: center;
     align-items: center;
-    padding: 0.5em;
-}
-
-.msgTxtInput {
-    border: none;
-    background-color: inherit;
-    color: white;
-    min-height: 1.25em;
-    max-height: 7em;
-    width: 80%;
-    resize: none;
-    font-size: 16px;
-    margin-left: 3em;
-    display: block;
-}
-
-.sendBtn {
-    margin-left: auto;
-    background-color: inherit;
-    border: none;
-    text-decoration: none;
-    color: rgb(0, 115, 255);
-}
-
-.sendBtn :hover {
-    color: rgb(165, 205, 255);
-}
-
-.msgTxtInput:focus {
-    outline: none;
-}
-
-.msgTxtInput:focus::placeholder {
-    color: white;
+    flex-direction: column;
 }

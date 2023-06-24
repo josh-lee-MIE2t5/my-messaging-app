@@ -1,7 +1,6 @@
 .chatRoomListItemContainer {
-    padding: 0.2em 0;
     background-color: #737373;
-    min-width: 100%;
+    width: 100%;
     border-top: 0.5px solid black;
     border-bottom: 0.5px solid black;
     padding: 1em 0;
@@ -13,12 +12,9 @@
     align-items: center
 }
 
-.chatRoomAvatar {
-    margin-left: 1em;
-}
 
 .chatRoomTxtDetails {
-    margin-left: 2em;
+    margin-left: 1em;
 }
 
 .chatRoomName {

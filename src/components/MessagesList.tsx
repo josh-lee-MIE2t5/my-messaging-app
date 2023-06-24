@@ -3,9 +3,10 @@ import {
   ListItem,
   Avatar,
   Typography,
-  Link,
-  TextField,
+  Button,
+  Grid,
 } from "@mui/material";
+import TryIcon from "@mui/icons-material/Try";
 import useChatRooms from "@/hooks/useChatRooms";
 import styles from "../styles/MessagesList.module.css";
 import ChatRoomListItem from "./ChatRoomListItem";
@@ -14,6 +15,7 @@ import { ReactElement, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import useMessages from "@/hooks/useMessages";
 import MessageDisplay from "./MessageDisplay";
+import MessageTextField from "./MessageTextField";
 
 function MessagesList({ atRoot }: { atRoot: boolean }) {
   const authContext = useContext(AuthContext);
@@ -34,6 +36,8 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
     admin,
     setMessages,
   } = useMessages();
+
+  //come back to this it is used for admin to kick users
   const [userList, setUserList] = useState<ReactElement<any, any> | undefined>(
     undefined
   );
@@ -82,7 +86,6 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
       style={{ padding: 0 }}
     >
       <ChatRoomListItem
-        readBy={c.readBy}
         id={c.id}
         name={c.name}
         isUnopened={c.readBy.some((u) => u.uid === authContext?.user?.uid)}
@@ -92,18 +95,43 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
   ));
 
   return (
-    <section className={styles.msgsListSection}>
+    <Grid container className={styles.msgsListSection}>
       {authContext !== undefined ? (
         <>
-          <div className={styles.chatroomListHolder}>
-            <List style={{ maxWidth: "100%" }}>{listOfChatRooms}</List>
-          </div>
+          <Grid item xs={2} md={4} className={styles.chatroomListHolder}>
+            <List>{listOfChatRooms}</List>
+          </Grid>
           {atRoot ? (
-            <>
-              <div>send a message to friends</div>
-            </>
+            <Grid
+              item
+              className={styles.chatroomSection}
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <div className={styles.rootPageDisplay}>
+                <TryIcon
+                  style={{
+                    fontSize: "150",
+                    color: "#e2e2e2",
+                  }}
+                />
+                <Typography
+                  style={{
+                    fontSize: "1em",
+                    color: "#e2e2e2",
+                    textAlign: "center",
+                  }}
+                >
+                  Start connecting with your friends
+                </Typography>
+                <Button>Send Message</Button>
+              </div>
+            </Grid>
           ) : (
-            <div className={styles.chatroomSection}>
+            <Grid item xs={10} md={8} className={styles.chatroomSection}>
               <div
                 style={{
                   display: "flex",
@@ -112,7 +140,7 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
                 }}
               >
                 <Avatar style={{ margin: "0.5em 1em" }}></Avatar>
-                {/* putt the profile picture here later */}
+                {/* put the profile picture here later */}
                 <Typography style={{ color: "white" }}>
                   {myChatRooms.find((c) => c.id === message.chatRoomId)?.name}
                 </Typography>
@@ -167,52 +195,19 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
                   )}
                 </ul>
               </div>
-              <div className={styles.msgSendingControls}>
-                <textarea
-                  onInput={(element) => {
-                    element.currentTarget.style.height = "10px";
-                    element.currentTarget.style.height =
-                      element.currentTarget.scrollHeight + "px";
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.keyCode === 13 && !e.shiftKey) {
-                      e.preventDefault();
-                      if (typeof chatRoomId === "string" && message.text.length)
-                        SendMessage(chatRoomId);
-                      setMessage((prevState) => ({ ...prevState, text: "" }));
-                    }
-                  }}
-                  onChange={onMessageChange}
-                  value={message.text}
-                  className={styles.msgTxtInput}
-                  placeholder="Message"
-                  rows={1}
-                />
-
-                {message.text.length ? (
-                  <button
-                    className={styles.sendBtn}
-                    onClick={(e) => {
-                      if (typeof chatRoomId === "string" && message.text.length)
-                        SendMessage(chatRoomId);
-                      setMessage((prevState) => ({ ...prevState, text: "" }));
-                    }}
-                  >
-                    <Typography>Send</Typography>
-                  </button>
-                ) : (
-                  <>
-                    <div>Put icon for image here</div>
-                  </>
-                )}
-              </div>
-            </div>
+              <MessageTextField
+                message={message}
+                onMessageChange={onMessageChange}
+                setMessage={setMessage}
+                SendMessage={SendMessage}
+              />
+            </Grid>
           )}
         </>
       ) : (
         <div>Loading element here</div>
       )}
-    </section>
+    </Grid>
   );
 }
 
