@@ -54,8 +54,14 @@ function useMessages() {
 
   const [loading, setLoading] = useState(false);
 
+  const [hasMore, setHasMore] = useState(true);
+
+  const [batchNum, setBatchNum] = useState(0);
+
   useEffect(() => {
     if (chatRoomId && typeof chatRoomId === "string") {
+      setHasMore(true);
+      setBatchNum(0);
       chatRoomListenerByID(chatRoomId);
       messageListener();
     }
@@ -75,7 +81,6 @@ function useMessages() {
     snapShot?.docChanges().forEach((change) => {
       if (change.type === "added") {
         if (typeof chatRoomId === "string") onMessageRead(chatRoomId);
-        if (!messages.length) setLoading(true);
         setMessages((prevState) => {
           return messages.length
             ? [
@@ -87,6 +92,7 @@ function useMessages() {
                   to: change.doc.data().to,
                   text: change.doc.data().text,
                   readBy: change.doc.data().readBy,
+                  id: change.doc.id,
                 },
               ]
             : [
@@ -97,20 +103,21 @@ function useMessages() {
                   to: change.doc.data().to,
                   text: change.doc.data().text,
                   readBy: change.doc.data().readBy,
+                  id: change.doc.id,
                 },
                 ...prevState,
               ];
         });
-        setLoading(false);
       }
     });
     if (!messages.length)
       setStartAfterDoc(snapShot?.docs[snapShot.docs.length - 1]);
+    setBatchNum((prev) => prev + 1);
   }, [snapShot]);
 
   async function getOlderMsgs() {
     //implement state for loading for a loading css animation
-    setLoading(true);
+    //setLoading(true);
     if (startAfterDoc) {
       console.log("fetching older msgs");
       const q = query(
@@ -121,6 +128,9 @@ function useMessages() {
         startAfter(startAfterDoc)
       );
       const nextBatchSnapshot = await getDocs(q);
+      if (!nextBatchSnapshot.size) {
+        setHasMore(false);
+      }
       nextBatchSnapshot.forEach((m) => {
         if (m.exists()) {
           setMessages((prevState) => [
@@ -131,6 +141,7 @@ function useMessages() {
               to: m.data().to,
               text: m.data().text,
               readBy: m.data().readBy,
+              id: m.id,
             },
             ...prevState,
           ]);
@@ -140,7 +151,6 @@ function useMessages() {
         nextBatchSnapshot.docs[nextBatchSnapshot.docs.length - 1]
       );
     }
-    setLoading(false);
   }
 
   function onMessageChange(
@@ -204,6 +214,7 @@ function useMessages() {
   }
   return {
     loading,
+    setLoading,
     admin,
     readBy,
     setReadBy,
@@ -215,6 +226,8 @@ function useMessages() {
     message,
     setMessage,
     setMessages,
+    hasMore,
+    batchNum,
   };
 }
 

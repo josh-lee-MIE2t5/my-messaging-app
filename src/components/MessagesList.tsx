@@ -11,11 +11,12 @@ import useChatRooms from "@/hooks/useChatRooms";
 import styles from "../styles/MessagesList.module.css";
 import ChatRoomListItem from "./ChatRoomListItem";
 import { AuthContext } from "@/context/AuthContext";
-import { ReactElement, useContext, useEffect, useState } from "react";
+import { ReactElement, useContext, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import useMessages from "@/hooks/useMessages";
 import MessageDisplay from "./MessageDisplay";
 import MessageTextField from "./MessageTextField";
+import InfinitScroll from "react-infinite-scroll-component";
 
 function MessagesList({ atRoot }: { atRoot: boolean }) {
   const authContext = useContext(AuthContext);
@@ -24,7 +25,6 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
   const router = useRouter();
   const { chatRoomId } = router.query;
   const {
-    loading,
     readBy,
     SendMessage,
     getChatRoomDetails,
@@ -35,6 +35,7 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
     messages,
     admin,
     setMessages,
+    hasMore,
   } = useMessages();
 
   //come back to this it is used for admin to kick users
@@ -42,21 +43,34 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
     undefined
   );
 
+  //state to track which chatroom is opened
+  const [selectedChatroom, setSelectedChatroom] = useState<string | undefined>(
+    undefined
+  );
+
   useEffect(() => {
-    if (authContext?.user && typeof chatRoomId === "string" && admin) {
+    if (
+      authContext?.user &&
+      typeof chatRoomId === "string" &&
+      admin &&
+      messages.length &&
+      messages[0].id
+    ) {
       //confirm user is a participant of the group to be able to enter the chatRoom
       //if the user is no longer a participant redirect user
+      setSelectedChatroom(chatRoomId);
       if (admin.uid === authContext.user.uid)
         setUserList(
           <ul>
             {message.to.map((p) => (
-              <li>
+              <li key={p.uid}>
                 {p.email}
                 <button
                   onClick={(e) => {
                     typeof p.uid === "string" &&
                       removeUser(message.chatRoomId, p.uid);
                   }}
+                  key={p.uid}
                 >
                   remove
                 </button>
@@ -73,8 +87,10 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
         p ? getChatRoomDetails() : router.push("/"); //this is only client side guarding look into other options
       });
     }
-  }, [chatRoomId, authContext, admin]);
+  }, [chatRoomId, authContext, admin, messages]);
 
+  //with state defined for what is the selected room if it's id is equal to one of these then pass in
+  //true for it's prop "isSelected"
   let listOfChatRooms: JSX.Element[] = myChatRooms.map((c) => (
     <ListItem
       onClick={() => {
@@ -86,6 +102,7 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
       style={{ padding: 0 }}
     >
       <ChatRoomListItem
+        isSelected={c.id === selectedChatroom}
         id={c.id}
         name={c.name}
         isUnopened={c.readBy.some((u) => u.uid === authContext?.user?.uid)}
@@ -98,13 +115,16 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
     <Grid container className={styles.msgsListSection}>
       {authContext !== undefined ? (
         <>
-          <Grid item xs={2} md={4} className={styles.chatroomListHolder}>
+          <Grid item xs={2} md={4} lg={3} className={styles.chatroomListHolder}>
             <List>{listOfChatRooms}</List>
           </Grid>
           {atRoot ? (
             <Grid
               item
               className={styles.chatroomSection}
+              xs={10}
+              md={8}
+              lg={9}
               style={{
                 display: "flex",
                 justifyContent: "center",
@@ -127,11 +147,11 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
                 >
                   Start connecting with your friends
                 </Typography>
-                <Button>Send Message</Button>
+                <Button style={{ marginTop: "8px" }}>Send a Message</Button>
               </div>
             </Grid>
           ) : (
-            <Grid item xs={10} md={8} className={styles.chatroomSection}>
+            <Grid item xs={10} md={8} lg={9} className={styles.chatroomSection}>
               <div
                 style={{
                   display: "flex",
@@ -145,8 +165,16 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
                   {myChatRooms.find((c) => c.id === message.chatRoomId)?.name}
                 </Typography>
               </div>
-              <div className={styles.messagesHolderForChatroomOpen}>
-                {loading && <span>Loading...</span>}
+              <InfinitScroll
+                className={styles.messagesHolderForChatroomOpen}
+                inverse={true}
+                height={"75vh"}
+                dataLength={messages.length}
+                next={getOlderMsgs}
+                hasMore={hasMore}
+                loader={<h3>loading ...</h3>}
+                endMessage={<h3>End</h3>}
+              >
                 {myChatRooms.find((c) => c.id === chatRoomId)?.mostRecentMsg
                   ?.from.uid === authContext.user?.uid && (
                   <Typography
@@ -176,25 +204,42 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
                     margin: "0",
                   }}
                 >
+                  {/* {!loading && messages.length && hasMore && (
+                    <div
+                      id="endOfLatestMsgBatch"
+                      style={{
+                        backgroundColor: "red",
+                        width: "100%",
+                        height: "100vh",
+                      }}
+                    ></div>
+                  )} */}
                   {messages.map((m, i) =>
-                    i ? (
-                      <MessageDisplay
-                        text={m.text}
-                        from={m.from}
-                        fromOfMsgJustBefore={messages[i - 1].from}
-                        date={m.date}
-                        dateOfMsgJustBefore={messages[i - 1].date}
-                      />
+                    i === 0 ? (
+                      <div id={m.id} key={m.id}>
+                        <MessageDisplay
+                          key={m.id}
+                          text={m.text}
+                          from={m.from}
+                          date={m.date}
+                        />
+                      </div>
                     ) : (
-                      <MessageDisplay
-                        text={m.text}
-                        from={m.from}
-                        date={m.date}
-                      />
+                      <div id={m.id} key={m.id}>
+                        <MessageDisplay
+                          key={m.id}
+                          text={m.text}
+                          from={m.from}
+                          fromOfMsgJustBefore={messages[i - 1].from}
+                          date={m.date}
+                          dateOfMsgJustBefore={messages[i - 1].date}
+                        />
+                      </div>
                     )
                   )}
                 </ul>
-              </div>
+              </InfinitScroll>
+              {/* </div> */}
               <MessageTextField
                 message={message}
                 onMessageChange={onMessageChange}

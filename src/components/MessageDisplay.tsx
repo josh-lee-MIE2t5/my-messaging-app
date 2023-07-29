@@ -2,7 +2,7 @@ import FirestoreUser from "@/types/FirestoreUser.types";
 import { Typography } from "@mui/material";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import styles from "../styles/MessageDisplay.module.css";
-import { useContext, useEffect, useState } from "react";
+import { MutableRefObject, useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/context/AuthContext";
 
 interface Props {

@@ -11,6 +11,7 @@ interface Props {
   name: string | undefined;
   mostRecentMsg?: Msg;
   isUnopened: boolean;
+  isSelected: boolean;
 }
 
 interface Msg {
@@ -18,7 +19,13 @@ interface Msg {
   text: string;
 }
 //change style if this chatroom is the one selected
-function ChatRoomListItem({ id, name, mostRecentMsg, isUnopened }: Props) {
+function ChatRoomListItem({
+  id,
+  name,
+  mostRecentMsg,
+  isUnopened,
+  isSelected,
+}: Props) {
   const isMediumScreen = useMediaQuery("(min-width:900px)");
   const authContext = useContext(AuthContext);
   const mostRecentMsgDisplay =
@@ -29,7 +36,13 @@ function ChatRoomListItem({ id, name, mostRecentMsg, isUnopened }: Props) {
       ": " +
       mostRecentMsg?.text;
   return (
-    <Box className={styles.chatRoomListItemContainer}>
+    <Box
+      className={
+        isSelected
+          ? styles.chatRoomListItemContainerSelected
+          : styles.chatRoomListItemContainer
+      }
+    >
       <Link
         style={{
           textDecoration: "none",

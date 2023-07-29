@@ -3,7 +3,7 @@ import MessagesList from "@/components/MessagesList";
 function Messages() {
   return (
     <>
-      <MessagesList />
+      <MessagesList atRoot={true} />
     </>
   );
 }
