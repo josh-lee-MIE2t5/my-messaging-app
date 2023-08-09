@@ -1,0 +1,49 @@
+.chatRoomListItemContainer {
+    background-color: #737373;
+    width: 100%;
+    border: none;
+    padding: 1em 0;
+}
+
+.chatRoomListItemContainer:hover {
+    background-color: #7a7a7a;
+}
+
+.chatRoomListItemContainerSelected {
+    background-color: #8f8e8e;
+    width: 100%;
+    border: none;
+    padding: 1em 0;
+}
+
+.CRLIContentWrapper {
+    display: flex;
+    justify-content: start;
+    align-items: center
+}
+
+
+.chatRoomTxtDetails {
+    margin-left: 1em;
+}
+
+.chatRoomName {
+    color: #e2e2e2
+}
+
+.mostRecentTxt {
+    color: #aaaaaa;
+    display: inline-block;
+    max-width: 200px;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.unOpenedIndicator {
+    background-color: #2494fc;
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+    margin-right: 0.5em;
+}

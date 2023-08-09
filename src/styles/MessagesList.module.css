@@ -1,0 +1,36 @@
+.msgsListSection {
+    background-color: blue;
+    margin-left: 2em;
+    height: 95vh;
+    margin-top: 1em;
+    width: 90vw;
+    display: flex;
+}
+
+.chatroomListHolder {
+    width: 400px;
+}
+
+.chatroomSection {
+    background-color: rgb(52, 52, 52);
+    height: 95vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.messagesHolderForChatroomOpen {
+    overflow-y: scroll;
+    height: 83vh;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+
+.rootPageDisplay {
+    width: 20em;
+    height: 20em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}

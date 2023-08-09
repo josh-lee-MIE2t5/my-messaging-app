@@ -23,7 +23,7 @@ import { useRouter } from "next/router";
 import { ChangeEvent, useContext, useEffect, useState } from "react";
 
 function useMessages() {
-  const chunkSize = 15;
+  const chunkSize = 25;
 
   const [readBy, setReadBy] = useState<FirestoreUser[]>([]);
 
@@ -52,8 +52,16 @@ function useMessages() {
 
   const [admin, setAdmin] = useState<FirestoreUser | undefined>(undefined);
 
+  const [loading, setLoading] = useState(false);
+
+  const [hasMore, setHasMore] = useState(true);
+
+  const [batchNum, setBatchNum] = useState(0);
+
   useEffect(() => {
     if (chatRoomId && typeof chatRoomId === "string") {
+      setHasMore(true);
+      setBatchNum(0);
       chatRoomListenerByID(chatRoomId);
       messageListener();
     }
@@ -84,6 +92,7 @@ function useMessages() {
                   to: change.doc.data().to,
                   text: change.doc.data().text,
                   readBy: change.doc.data().readBy,
+                  id: change.doc.id,
                 },
               ]
             : [
@@ -94,6 +103,7 @@ function useMessages() {
                   to: change.doc.data().to,
                   text: change.doc.data().text,
                   readBy: change.doc.data().readBy,
+                  id: change.doc.id,
                 },
                 ...prevState,
               ];
@@ -102,10 +112,12 @@ function useMessages() {
     });
     if (!messages.length)
       setStartAfterDoc(snapShot?.docs[snapShot.docs.length - 1]);
+    setBatchNum((prev) => prev + 1);
   }, [snapShot]);
 
   async function getOlderMsgs() {
     //implement state for loading for a loading css animation
+    //setLoading(true);
     if (startAfterDoc) {
       console.log("fetching older msgs");
       const q = query(
@@ -116,6 +128,9 @@ function useMessages() {
         startAfter(startAfterDoc)
       );
       const nextBatchSnapshot = await getDocs(q);
+      if (!nextBatchSnapshot.size) {
+        setHasMore(false);
+      }
       nextBatchSnapshot.forEach((m) => {
         if (m.exists()) {
           setMessages((prevState) => [
@@ -126,6 +141,7 @@ function useMessages() {
               to: m.data().to,
               text: m.data().text,
               readBy: m.data().readBy,
+              id: m.id,
             },
             ...prevState,
           ]);
@@ -137,7 +153,9 @@ function useMessages() {
     }
   }
 
-  function onMessageChange(e: ChangeEvent<HTMLInputElement>) {
+  function onMessageChange(
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) {
     setMessage((prevState) => ({
       ...prevState,
       date: new Date(),
@@ -195,8 +213,11 @@ function useMessages() {
     };
   }
   return {
+    loading,
+    setLoading,
     admin,
     readBy,
+    setReadBy,
     SendMessage,
     getChatRoomDetails,
     onMessageChange,
@@ -204,6 +225,9 @@ function useMessages() {
     messages,
     message,
     setMessage,
+    setMessages,
+    hasMore,
+    batchNum,
   };
 }
 

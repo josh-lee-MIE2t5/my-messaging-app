@@ -7,4 +7,5 @@ export default interface Message {
   to: FirestoreUser[];
   text: string;
   readBy: FirestoreUser[];
+  id?: string;
 }

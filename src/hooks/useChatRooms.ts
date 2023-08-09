@@ -24,7 +24,6 @@ import {
 import { db } from "@/firebase/firebase";
 import { isEqual } from "lodash";
 import { useErrorHandler } from "react-error-boundary";
-import FirestoreUser from "@/types/FirestoreUser.types";
 
 function useChatRooms() {
   interface ChatRoomListType extends ChatRoom {
@@ -58,7 +57,7 @@ function useChatRooms() {
   });
   const [myChatRooms, setMyChatRooms] = useState<ChatRoomListType[]>([]);
 
-  const chunkSize = 2;
+  const chunkSize = 20;
 
   useEffect(() => {
     if (authContext?.user) chatRoomListener();
@@ -78,8 +77,13 @@ function useChatRooms() {
         const oldDate = myChatRooms.find(
           (c) => c.id === change.doc.id
         )?.dateLastSent;
+        const oldReadBy = myChatRooms.find(
+          (c) => c.id === change.doc.id
+        )?.readBy;
+        const newReadBy = change.doc.data().readBy;
         //only change order when the change involves a new msg sent
-        if (!isEqual(oldDate, newDate)) adjustListedChatrooms(true, change);
+        if (!isEqual(oldDate, newDate) || !isEqual(oldReadBy, newReadBy))
+          adjustListedChatrooms(true, change);
       }
       if (!myChatRooms.length)
         setStartAfterDoc(snapShot.docs[snapShot.docs.length - 1]);
