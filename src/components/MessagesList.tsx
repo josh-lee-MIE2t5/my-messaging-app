@@ -17,6 +17,7 @@ import useMessages from "@/hooks/useMessages";
 import MessageDisplay from "./MessageDisplay";
 import MessageTextField from "./MessageTextField";
 import InfinitScroll from "react-infinite-scroll-component";
+import EndOfInfiniteScrollMessages from "./EndOfInfiniteScrollMessages";
 
 function MessagesList({ atRoot }: { atRoot: boolean }) {
   const authContext = useContext(AuthContext);
@@ -173,7 +174,18 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
                 next={getOlderMsgs}
                 hasMore={hasMore}
                 loader={<h3>loading ...</h3>}
-                endMessage={<h3>End</h3>}
+                endMessage={
+                  message ? (
+                    <EndOfInfiniteScrollMessages
+                      participants={message.to
+                        .slice()
+                        .concat(message.from)
+                        .sort()}
+                    />
+                  ) : (
+                    <p>messages not defined</p>
+                  )
+                }
               >
                 {myChatRooms.find((c) => c.id === chatRoomId)?.mostRecentMsg
                   ?.from.uid === authContext.user?.uid && (
@@ -204,16 +216,6 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
                     margin: "0",
                   }}
                 >
-                  {/* {!loading && messages.length && hasMore && (
-                    <div
-                      id="endOfLatestMsgBatch"
-                      style={{
-                        backgroundColor: "red",
-                        width: "100%",
-                        height: "100vh",
-                      }}
-                    ></div>
-                  )} */}
                   {messages.map((m, i) =>
                     i === 0 ? (
                       <div id={m.id} key={m.id}>
