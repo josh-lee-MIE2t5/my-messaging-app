@@ -1,0 +1,43 @@
+.NavigationControlHolder {
+    width: 100%;
+    margin: 10px 0;
+    align-self: center;
+}
+
+.NavigationBtnsContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.NavigationChatroomFinderWrapper {
+    background-color: #737373;
+    height: 2.5em;
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.NavigationChatroomFinderBtn {
+    display: flex;
+    align-items: center;
+    text-align: left;
+    padding: None;
+    width: 90%;
+    border: None;
+    background-color: rgb(52, 52, 52);
+
+}
+
+.NavigationChatroomFinderBtn:hover {
+    cursor: pointer;
+}
+
+.NavigationChatroomFinderText {
+    color: #aaaaaa
+}
+
+.NavigationChatroomFinderIcon {
+    color: #aaaaaa;
+}

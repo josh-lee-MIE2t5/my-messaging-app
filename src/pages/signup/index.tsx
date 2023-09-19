@@ -11,7 +11,7 @@ function SignUpPage() {
       push("/");
     }
   }, [authContext]);
-  // replace still loading text with loading icon later
+  // replace still loading text with loading icon later which takes up the entire screen
   return authContext?.user ? <p>still loading</p> : <SignUpForm />;
 }
 

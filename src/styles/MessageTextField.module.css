@@ -16,7 +16,7 @@
 .msgTxtInput {
     border: none;
     background-color: inherit;
-    color: white;
+    color: #e2e2e2;
     min-height: 1.25em;
     max-height: 7em;
     width: 80%;
@@ -43,5 +43,5 @@
 }
 
 .msgTxtInput:focus::placeholder {
-    color: white;
+    color: #e2e2e2;
 }

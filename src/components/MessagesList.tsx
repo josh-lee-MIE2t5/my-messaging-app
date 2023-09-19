@@ -18,6 +18,7 @@ import MessageDisplay from "./MessageDisplay";
 import MessageTextField from "./MessageTextField";
 import InfinitScroll from "react-infinite-scroll-component";
 import EndOfInfiniteScrollMessages from "./EndOfInfiniteScrollMessages";
+import NavigationControl from "./NavigationControl";
 
 function MessagesList({ atRoot }: { atRoot: boolean }) {
   const authContext = useContext(AuthContext);
@@ -117,6 +118,7 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
       {authContext !== undefined ? (
         <>
           <Grid item xs={2} md={4} lg={3} className={styles.chatroomListHolder}>
+            <NavigationControl />
             <List>{listOfChatRooms}</List>
           </Grid>
           {atRoot ? (
@@ -241,7 +243,6 @@ function MessagesList({ atRoot }: { atRoot: boolean }) {
                   )}
                 </ul>
               </InfinitScroll>
-              {/* </div> */}
               <MessageTextField
                 message={message}
                 onMessageChange={onMessageChange}

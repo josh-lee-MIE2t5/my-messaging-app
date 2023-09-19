@@ -51,7 +51,7 @@ function MessageDisplay({
       }
     >
       {dateForDividerDisplay && (
-        <span style={{ width: "100%" }}>
+        <span style={{ width: "100%", color: "grey" }}>
           <Typography textAlign="center">
             {((Date.now() - dateForDividerDisplay.getTime()) / 1000 <= 172800
               ? daysOfTheWeek[dateForDividerDisplay.getDay()]

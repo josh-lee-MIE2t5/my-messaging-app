@@ -1,14 +1,16 @@
 .msgsListSection {
-    background-color: blue;
+    background-color: #737373;
     margin-left: 2em;
     height: 95vh;
     margin-top: 1em;
-    width: 90vw;
+    width: 95vw;
     display: flex;
 }
 
 .chatroomListHolder {
     width: 400px;
+    display: flex;
+    flex-direction: column;
 }
 
 .chatroomSection {

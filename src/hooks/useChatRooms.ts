@@ -61,7 +61,7 @@ function useChatRooms() {
 
   useEffect(() => {
     if (authContext?.user) chatRoomListener();
-  }, []);
+  }, [authContext?.user]);
 
   useEffect(() => {
     snapShot?.docChanges().forEach((change) => {

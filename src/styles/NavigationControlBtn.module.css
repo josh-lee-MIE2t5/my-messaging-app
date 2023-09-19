@@ -1,0 +1,30 @@
+.NavigationBtnNotAtUrl {
+    background-color: #737373;
+    height: 3em;
+    display: flex;
+    align-items: center;
+}
+
+
+
+.NavigationBtnNotAtUrl:hover {
+    background-color: #7a7a7a;
+}
+
+.iconAndTextWrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    color: #e2e2e2;
+    text-decoration: none;
+}
+
+
+.NavigationBtnAtUrl {
+    background-color: #7a7a7a;
+}
+
+.NavigationBtnText {
+    margin-left: 1em;
+    font-size: 1.25em;
+}
