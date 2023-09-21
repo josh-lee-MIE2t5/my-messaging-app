@@ -7,11 +7,7 @@
     display: flex;
 }
 
-.chatroomListHolder {
-    width: 400px;
-    display: flex;
-    flex-direction: column;
-}
+
 
 .chatroomSection {
     background-color: rgb(52, 52, 52);

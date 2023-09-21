@@ -24,12 +24,9 @@ import {
 import { db } from "@/firebase/firebase";
 import { isEqual } from "lodash";
 import { useErrorHandler } from "react-error-boundary";
+import ChatRoomListType from "@/types/ChatRoomListType";
 
 function useChatRooms() {
-  interface ChatRoomListType extends ChatRoom {
-    id: string;
-  }
-
   const handleError = useErrorHandler();
   const chatRoomRef = collection(db, "chatRoom");
   const authContext = useContext(AuthContext);
@@ -55,6 +52,7 @@ function useChatRooms() {
     dateLastSent: new Date(),
     type: "directMsg",
   });
+
   const [myChatRooms, setMyChatRooms] = useState<ChatRoomListType[]>([]);
 
   const chunkSize = 20;

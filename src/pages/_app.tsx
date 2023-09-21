@@ -4,7 +4,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { ErrorBoundary } from "react-error-boundary";
 import Error from "@/components/ErrorFallback";
 import { AlertProvider } from "@/context/AlertContext";
-
+import FindChatRoomPopUp from "@/components/FindChatRoomPopUp";
 const myErrorHandler = (error: Error, info: { componentStack: string }) => {
   // Do something with the error
   console.log(error);

@@ -6,10 +6,16 @@ import GroupIcon from "@mui/icons-material/Group";
 import NavigationControlBtn from "./NavigationControlBtn";
 import { useMediaQuery, Typography } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import { useContext } from "react";
+import { FindChatRoomPopUpContext } from "@/context/FindChatRoomPopUpContext";
 
 function NavigationControl() {
+  //Hooks
+  const findChatRoomPopUpContext = useContext(FindChatRoomPopUpContext);
   const { asPath } = useRouter();
   const isAtleastMediumScreen = useMediaQuery("(min-width:900px)");
+
+  //dynamic style based on the hook above that is used to check the screen size
   const iconStyles = { marginLeft: isAtleastMediumScreen ? "0.75em" : "0" };
 
   const NavButtonsDetails = [
@@ -33,7 +39,12 @@ function NavigationControl() {
   return (
     <section className={styles.NavigationControlHolder}>
       <div className={styles.NavigationChatroomFinderWrapper}>
-        <button className={styles.NavigationChatroomFinderBtn}>
+        <button
+          onClick={(e) => {
+            if (findChatRoomPopUpContext) findChatRoomPopUpContext.toggle();
+          }}
+          className={styles.NavigationChatroomFinderBtn}
+        >
           {isAtleastMediumScreen ? (
             <Typography className={styles.NavigationChatroomFinderText}>
               Find or start a conversation
